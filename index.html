@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit">
+    <title>2026 테크개발본부 SI 프로젝트 현황</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border-color: #e2e8f0;
+            --white: #ffffff;
+            --blue: #3b82f6;
+            --emerald: #10b981;
+            --indigo: #6366f1;
+            --orange: #f97316;
+            --red: #ef4444;
+            --gold: #eab308;
+            --sidebar-width: 320px;
+
+            --phase-1: #FFE48F;
+            --phase-2: #FFD347;
+            --phase-3: #FFC000;
+            --phase-4: #FAB12E;
+            --phase-5: #F9A307;
+            
+            --chart-text: #433100;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* 전체 placeholder 연한 회색 통일 */
+        ::placeholder { color: #c0c8d2; opacity: 1; }
+        ::-webkit-input-placeholder { color: #c0c8d2; }
+        :-ms-input-placeholder { color: #c0c8d2; }
+
+        /* 필수 항목 표시 */
+        .req label::after {
+            content: ' *';
+            color: #ef4444;
+            font-weight: 900;
+            font-size: 0.85em;
+        }
+        .req input, .req select, .req textarea {
+            border-color: #94a3b8;
+        }
+        .req .date-wrap input { border-color: #94a3b8; }
+        body { 
+            font-family: "Malgun Gothic", "맑은 고딕", "Segoe UI Symbol", "Segoe UI", Arial, dotum, gulim, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 10px 16px;
+        }
+
+        .container { max-width: 1700px; margin: 0 auto; }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+        .nav-tab {
+            padding: 4px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            border-radius: 8px;
+            transition: all 0.2s;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-tab.active {
+            background-color: #FD9C26;
+            color: white;
+            box-shadow: 0 2px 4px rgba(253,156,38,0.3);
+        }
+
+        header {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        @media (min-width: 768px) {
+            header { flex-direction: row; align-items: center; justify-content: space-between; }
+        }
+        .header-title h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-top: 5px; }
+        .header-title .sub-tag { color: var(--blue); font-weight: bold; font-size: 0.9rem; }
+
+        .live-clock-container {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-left: 3px solid #FD9C26;
+            padding: 8px 16px 8px 13px;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+        .clock-date { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.55); letter-spacing: 0.03em; }
+        .clock-sep { width: 1px; height: 14px; background: rgba(255,255,255,0.15); flex-shrink: 0; }
+        .clock-time { font-size: 0.82rem; font-weight: 800; color: #FD9C26; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 6px; letter-spacing: 0.04em; }
+        .clock-live-dot { width: 7px; height: 7px; background: #FD9C26; border-radius: 50%; flex-shrink: 0;
+            box-shadow: 0 0 6px 2px rgba(253,156,38,0.7), 0 0 0 0 rgba(253,156,38,0.5);
+            animation: clock-pulse 2s ease-out infinite; }
+        @keyframes clock-pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(253,156,38,0.55); }
+            60%  { box-shadow: 0 0 0 5px rgba(253,156,38,0); }
+            100% { box-shadow: 0 0 0 0 rgba(253,156,38,0); }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .filter-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .filter-btn { 
+            padding: 8px 16px; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+            font-weight: bold; 
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn.active { background: #FD9C26; color: white; border-color: #FD9C26; border-width: 2px; box-shadow: 0 2px 6px rgba(253,156,38,0.35); }
+        .filter-btn:hover:not(.active) { background: #fff7ed; border-color: #FD9C26; color: #c2410c; }
+
+        /* 부서별 필터 버튼 색상 */
+        .filter-btn-global { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+        .filter-btn-global:hover:not(.active) { background: #dbeafe; border-color: #93c5fd; color: #1e40af; }
+        .filter-btn-global.active { background: #1d4ed8; color: white; border-color: #1d4ed8; border-width: 2px; box-shadow: 0 2px 6px rgba(29,78,216,0.35); }
+
+        .filter-btn-mgmt { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+        .filter-btn-mgmt:hover:not(.active) { background: #d1fae5; border-color: #6ee7b7; color: #065f46; }
+        .filter-btn-mgmt.active { background: #047857; color: white; border-color: #047857; border-width: 2px; box-shadow: 0 2px 6px rgba(4,120,87,0.35); }
+
+        .filter-btn-deposit { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+        .filter-btn-deposit:hover:not(.active) { background: #e0e7ff; border-color: #a5b4fc; color: #3730a3; }
+        .filter-btn-deposit.active { background: #4338ca; color: white; border-color: #4338ca; border-width: 2px; box-shadow: 0 2px 6px rgba(67,56,202,0.35); }
+
+        .filter-btn-loan { background: #fff7ed; color: #c2410c; border-color: #fdba74; }
+        .filter-btn-loan:hover:not(.active) { background: #ffedd5; border-color: #fb923c; color: #9a3412; }
+        .filter-btn-loan.active { background: #c2410c; color: white; border-color: #c2410c; border-width: 2px; box-shadow: 0 2px 6px rgba(194,65,12,0.35); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .stat-card {
+            background: var(--white);
+            padding: 10px 14px 10px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-left: 4px solid #e2e8f0;
+            position: relative;
+        }
+        .stat-card.sc-total  { border-left-color: #64748b; }
+        .stat-card.sc-budget { border-left-color: var(--gold); }
+        .stat-card.sc-early  { border-left-color: var(--emerald); }
+        .stat-card.sc-mm     { border-left-color: var(--indigo); }
+        .stat-card .label { font-size: 0.78rem; color: var(--text-sub); margin-bottom: 4px; font-weight: 700; letter-spacing: 0.02em; text-transform: none; }
+        .stat-card .value { font-size: 1.5rem; font-weight: 900; }
+
+        .gantt-container { 
+            background: var(--white); 
+            border-radius: 20px; 
+            border: 1px solid var(--border-color); 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+        .gantt-header {
+            padding: 10px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .gantt-scroll { overflow-x: auto; padding: 10px 16px; }
+        .gantt-content { min-width: 1400px; position: relative; padding-top: 16px; }
+
+        .timeline-header { display: grid; grid-template-columns: var(--sidebar-width) 1fr; margin-bottom: 8px; }
+        .month-grid { display: grid; grid-template-columns: repeat(12, 1fr); border-left: 1px solid #e2e8f0; margin-right: 80px; position: relative; }
+        .month-cell { position: relative; border-right: 1px solid #e2e8f0; overflow: hidden; }
+        .month-label { display: block; text-align: center; font-size: 0.72rem; font-weight: 800; color: var(--text-sub); padding: 2px 0 3px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        .week-ticks { display: flex; height: 7px; position: relative; background: #fafbfc; }
+        .week-tick { position: absolute; top: 0; bottom: 0; width: 1px; background: #d1d9e0; }
+        .week-tick.mid { background: #c8d0d8; }
+
+        .gantt-row { display: grid; grid-template-columns: var(--sidebar-width) 1fr; align-items: center; padding: 3px 0; border-bottom: 1px solid #f1f5f9; }
+        .project-info { padding-left: 10px; padding-right: 20px; }
+        .dept-tag { font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; margin-bottom: 2px; }
+        .project-name { font-size: 0.95rem; font-weight: 800; color: #1e293b; margin-bottom: 3px; line-height: 1.3; }
+        .project-meta { font-size: 0.72rem; color: var(--text-sub); font-weight: 600; display: flex; flex-wrap: wrap; align-items: center; gap: 3px 8px; }
+        .project-meta-sep { color: #cbd5e1; font-weight: 400; }
+        .project-meta .mm-val { color: #475569; font-weight: 700; }
+        .project-meta .budget-val { color: #d97706; font-weight: 700; }
+        .project-meta .pm-val { color: #475569; font-weight: 700; }
+
+        .bar-area { display: grid; grid-template-columns: repeat(12, 1fr); position: relative; height: 38px; border-left: 1px solid #f1f5f9; margin-right: 80px; }
+        .grid-line { border-right: 1px solid #f1f5f9; height: 100%; }
+        
+        .phase-bar { 
+            position: absolute; 
+            top: 2px; bottom: 2px; 
+            display: flex; align-items: center; justify-content: center;
+            color: var(--chart-text); font-size: 0.9rem; font-weight: 800;
+            overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+            padding: 0 14px 0 18px; transition: all 0.3s; cursor: pointer;
+            z-index: 5;
+            clip-path: polygon(calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%, 10px 50%, 0% 0%);
+        }
+        .phase-bar.first-phase {
+            padding-left: 8px;
+            clip-path: polygon(calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%, 0% 0%);
+        }
+        .phase-bar.phase-done {
+            filter: saturate(0.35) brightness(0.88);
+            opacity: 0.65;
+        }
+        .phase-bar.phase-active {
+            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.6);
+            animation: phase-active-pulse 2.2s ease-in-out infinite;
+        }
+        @keyframes phase-active-pulse {
+            0%, 100% { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.45); }
+            50%       { box-shadow: inset 0 0 0 2.5px rgba(255,255,255,0.9), 0 0 10px 3px rgba(255,255,255,0.18); }
+        }
+
+        .today-line {
+            position: absolute; top: 0; bottom: 0; width: 1px;
+            background: linear-gradient(to bottom,
+                transparent 0%,
+                rgba(239,68,68,0.95) 4%,
+                #ef4444 12%,
+                #ef4444 88%,
+                rgba(239,68,68,0.95) 96%,
+                transparent 100%);
+            z-index: 50; pointer-events: none;
+            filter: drop-shadow(0 0 2px rgba(239,68,68,0.45));
+        }
+        .today-dot {
+            position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+            width: 9px; height: 9px;
+            background: #ef4444; border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 1.5px #ef4444;
+            animation: today-pulse 2.4s ease-out infinite;
+            z-index: 51;
+        }
+        .today-badge {
+            position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+            background: #ef4444; color: white;
+            font-size: 9px; font-weight: 900; letter-spacing: 0.9px;
+            padding: 2px 9px; border-radius: 4px;
+            white-space: nowrap;
+            box-shadow: 0 3px 10px rgba(239,68,68,0.4);
+        }
+        .today-badge::after {
+            content: ''; position: absolute;
+            bottom: -4px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid #ef4444;
+        }
+        @keyframes today-pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(239,68,68,0.75), 0 0 0 1.5px #ef4444; }
+            65%  { box-shadow: 0 0 0 7px rgba(239,68,68,0),  0 0 0 1.5px #ef4444; }
+            100% { box-shadow: 0 0 0 0 rgba(239,68,68,0),    0 0 0 1.5px #ef4444; }
+        }
+        .past-overlay {
+            position: absolute; top: 0; bottom: 0; left: 0;
+            background: rgba(15, 23, 42, 0.035); pointer-events: none; z-index: 1;
+        }
+
+        /* ── Gantt 디자인 고도화 ── */
+        /* 4. 현재 달 헤더 강조 */
+        .month-cell.current-month-col .month-label {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            color: #c2410c;
+            border-bottom: 2px solid #FD9C26;
+            font-weight: 900;
+        }
+        .month-cell.current-month-col { background: rgba(253,156,38,0.06); }
+        .bar-area > .grid-line.current-month-bar { background: rgba(253,156,38,0.07); }
+
+        /* 2. 행 zebra striping (Gantt) */
+        .gantt-row:nth-child(even) { background: #f8f9fc; }
+        .gantt-row:nth-child(even) .bar-area { background: #f8f9fc; }
+
+        /* 컴팩트 뷰 */
+        .gantt-compact .gantt-row { padding: 1px 0; }
+        .gantt-compact .project-meta { display: none; }
+        .gantt-compact .dept-tag { display: none; }
+        .gantt-compact .project-name { font-size: 0.78rem; margin-bottom: 0; }
+        .gantt-compact .bar-area { height: 24px; }
+        .gantt-compact .phase-bar { top: 1px; bottom: 1px; font-size: 0.72rem; }
+        .gantt-compact .milestone { font-size: 8px; padding: 2px 4px; }
+        .gantt-compact .today-dot { top: 10px; width: 7px; height: 7px; }
+        .btn-compact { padding: 4px 12px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; border: 1.5px solid #94a3b8; background: #f1f5f9; color: #334155; cursor: pointer; font-family: inherit; transition: all 0.18s; white-space: nowrap; letter-spacing: 0.02em; }
+        .btn-compact:hover:not(.active) { background: #e2e8f0; border-color: #64748b; color: #1e293b; }
+        .btn-compact.active { background: #0f172a; color: #fbbf24; border-color: #0f172a; box-shadow: 0 2px 6px rgba(15,23,42,0.3); }
+
+        /* 3. 행 hover highlight (Gantt) */
+        .gantt-row { transition: background 0.15s; }
+        .gantt-row:hover { background: #eef4ff; }
+        .gantt-row:hover .bar-area { background: #eef4ff; }
+
+        /* 6. 사이드바 부서 배지 강조 */
+        .dept-tag { box-shadow: 0 1px 3px rgba(0,0,0,0.1); letter-spacing: 0.01em; }
+
+        .milestone {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: transparent; border: 2px solid var(--red); padding: 3px 6px;
+            border-radius: 6px; font-size: 10px; font-weight: 900; color: var(--red); z-index: 20;
+            line-height: 1.1; text-align: center;
+        }
+
+        .input-section {
+            background: white; padding: 20px 22px; border-radius: 16px;
+            border: 1px solid var(--border-color); box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: none;
+        }
+
+        /* ── admin 서브탭 ── */
+        .admin-tabs { display:flex; gap:4px; margin-bottom:16px; padding:4px; padding-bottom:0; border-bottom:2px solid #e2e8f0; background:transparent; }
+        .admin-tab-btn { padding:5px 18px; border:1.5px solid #dde3ea; border-bottom:none; border-radius:7px 7px 0 0; cursor:pointer; font-size:0.8rem; font-weight:700; background:#eef2f7; color:#64748b; font-family:inherit; transition:all 0.15s; position:relative; top:2px; }
+        .admin-tab-btn:hover:not(.active) { background:#e2e8f0; color:#334155; }
+        .admin-tab-btn.active { background:white; color:#1e293b; border-color:#cbd5e1; border-bottom-color:white; box-shadow:0 -2px 0 #475569 inset; }
+
+        /* ── 단건 등록 폼 제목 ── */
+        .form-section-title {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 12px; justify-content: space-between;
+        }
+        .form-section-title .title-left { display: flex; align-items: center; gap: 10px; }
+        .form-section-title .title-right { display: flex; align-items: center; gap: 6px; }
+        .btn-top-reset { padding: 4px 12px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; border: 1.5px solid #cbd5e1; background: white; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+        .btn-top-reset:hover { background: #f1f5f9; border-color: #94a3b8; }
+        .btn-top-save { padding: 4px 14px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; border: 1.5px solid #fdba74; background: #fff7ed; color: #c2410c; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+        .btn-top-save:hover { background: #ffedd5; border-color: #fb923c; }
+        .btn-top-delete { padding: 4px 12px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; border: 1.5px solid #fca5a5; background: #fee2e2; color: #dc2626; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; display: none; }
+        .btn-top-delete:hover { background: #fecaca; border-color: #f87171; }
+        .btn-top-sep { width: 1px; height: 16px; background: #e2e8f0; margin: 0 2px; display: none; }
+        .btn-top-sep.visible { display: block; }
+        .form-section-title h2 {
+            font-size: 1.05rem; font-weight: 900; color: #1e293b;
+            padding-left: 10px;
+            border-left: 4px solid #FD9C26;
+        }
+        .form-section-title .form-mode-badge {
+            font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 5px;
+            background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa;
+        }
+
+        /* ── 섹션 블록 ── */
+        .form-block {
+            background: #fafbfc; border: 1px solid #e8ecf1; border-radius: 10px;
+            padding: 14px 16px; margin-bottom: 12px;
+        }
+        .form-block-label {
+            font-size: 0.68rem; font-weight: 800; color: #64748b;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            margin-bottom: 10px; padding-bottom: 6px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-weight: 700; font-size: 0.78rem; color: #475569; }
+        .form-group input, .form-group select {
+            padding: 7px 10px; border: 1.5px solid #d1d9e0; border-radius: 7px;
+            font-size: 0.87rem; font-family: inherit; transition: border-color 0.15s, box-shadow 0.15s;
+            background: white;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #FD9C26;
+            box-shadow: 0 0 0 3px rgba(253,156,38,0.12);
+        }
+
+        /* ── 단계 입력 행 ── */
+        .phase-block {
+            border: 1px solid #e8ecf1; border-radius: 10px; overflow: hidden; margin-bottom: 8px;
+        }
+        .phase-block-header {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 12px; background: #f8fafc; border-bottom: 1px solid #e8ecf1;
+        }
+        .phase-num-badge {
+            font-size: 0.65rem; font-weight: 900; padding: 2px 8px; border-radius: 5px;
+            color: var(--chart-text);
+        }
+        .phase-block-body {
+            display: grid; grid-template-columns: 1fr 148px 148px 1fr; gap: 8px;
+            padding: 10px 12px; background: white;
+        }
+        .phase-block-body .form-group label { font-size: 0.7rem; color: #94a3b8; }
+        .phase-block-body input, .phase-block-body textarea {
+            padding: 5px 8px; border: 1.5px solid #e2e8f0; border-radius: 6px;
+            font-size: 0.82rem; font-family: inherit; transition: border-color 0.15s;
+            background: white; width: 100%;
+        }
+        .phase-block-body input:focus, .phase-block-body textarea:focus {
+            outline: none; border-color: #FD9C26;
+            box-shadow: 0 0 0 3px rgba(253,156,38,0.12);
+        }
+        .phase-block-body textarea { resize: vertical; min-height: 52px; }
+        /* 구) phase-input-row 호환 */
+        .phase-input-row {
+            display: grid; grid-template-columns: 130px 160px 160px 1fr; gap: 8px; margin-bottom: 6px;
+            background: #f8fafc; padding: 8px 10px; border-radius: 10px;
+        }
+
+        /* ── 버튼 그룹 (미사용 레거시 제거됨) ── */
+
+        /* ── 일괄 등록 ── */
+        .bulk-toolbar { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-bottom:8px; padding:8px 12px; background:#f8fafc; border:1px solid #e8ecf1; border-radius:9px; }
+        .bulk-toolbar-sep { width:1px; height:20px; background:#dde3ea; margin:0 2px; }
+        .bulk-notice {
+            width: 100%; background: #fffbeb; border: 1px solid #fde68a;
+            border-radius: 7px; padding: 7px 12px; margin-bottom: 8px;
+            font-size: 0.73rem; font-weight: 600; line-height: 1.5;
+        }
+        .bulk-notice .n1 { color: #451a03; }
+        .bulk-notice .n2 { color: #92400e; }
+        .bulk-notice .n3 { color: #b45309; }
+        .bulk-notice .n4 { color: #d97706; }
+        .btn-bulk { padding:6px 14px; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer; border:1.5px solid; font-family:inherit; transition:all 0.15s; white-space:nowrap; }
+        .btn-bulk.add    { background:#f0fdf4; color:#15803d; border-color:#86efac; }
+        .btn-bulk.add:hover    { background:#dcfce7; border-color:#4ade80; }
+        .btn-bulk.del    { background:#fff1f2; color:#dc2626; border-color:#fca5a5; }
+        .btn-bulk.del:hover    { background:#fee2e2; border-color:#f87171; }
+        .btn-bulk.import { background:#eff6ff; color:#1d4ed8; border-color:#93c5fd; }
+        .btn-bulk.import:hover { background:#dbeafe; border-color:#60a5fa; }
+        .btn-bulk.tmpl   { background:white; color:#3b82f6; border-color:#93c5fd; }
+        .btn-bulk.tmpl:hover   { background:#eff6ff; border-color:#60a5fa; }
+        .btn-bulk.save   { background:#fff7ed; color:#c2410c; border-color:#fdba74; }
+        .btn-bulk.save:hover   { background:#ffedd5; border-color:#fb923c; }
+        .btn-bulk.reset  { background:white; color:#64748b; border-color:#cbd5e1; }
+        .btn-bulk.reset:hover  { background:#f1f5f9; border-color:#94a3b8; }
+        .bulk-scroll { overflow-x:auto; overflow-y:visible; border:1.5px solid #e2e8f0; border-radius:10px; }
+        .bulk-grid { border-collapse:collapse; font-size:0.7rem; min-width:2600px; width:100%; }
+        .bulk-grid th { background:#f1f5f9; padding:4px 6px; border:1px solid #e2e8f0; white-space:nowrap; font-size:0.67rem; font-weight:800; color:#475569; position:sticky; top:0; z-index:10; text-align:center; }
+        .bulk-grid th.ph-h1 { background:#FFF3B0; color:#78350f; }
+        .bulk-grid th.ph-h2 { background:#D1FAE5; color:#064e3b; }
+        .bulk-grid th.ph-h3 { background:#DBEAFE; color:#1e3a8a; }
+        .bulk-grid th.ph-h4 { background:#FCE7F3; color:#831843; }
+        .bulk-grid th.ph-h5 { background:#EDE9FE; color:#4c1d95; }
+        .bulk-grid td { padding:4px 2px; border:1px solid #f1f5f9; vertical-align:middle; }
+        .bulk-grid td.row-num { background:#f8fafc; color:#94a3b8; font-size:0.62rem; text-align:center; padding:5px 4px; width:24px; font-weight:700; }
+        .bulk-grid td input, .bulk-grid td select { width:100%; border:none; background:transparent; font-size:0.7rem; padding:6px 5px; font-family:inherit; min-width:0; box-sizing:border-box; }
+        .bulk-grid td input:focus, .bulk-grid td select:focus { outline:2px solid #FD9C26; background:white; border-radius:3px; }
+        .bulk-grid tr:nth-child(even) td { background:#fafbfc; }
+        .bulk-grid tr:hover td { background:#eff6ff; }
+        .bulk-grid tr:hover td.row-num { background:#dbeafe; color:#1d4ed8; }
+        .bulk-grid td.row-chk { width:28px; text-align:center; padding:2px; background:#fafbfc; }
+        .bulk-grid tr.row-checked td { background:#fef9c3 !important; }
+        .bulk-grid tr.row-checked td.row-chk { background:#fef9c3 !important; }
+        .bulk-grid tr:hover td { background:#eff6ff; }
+        .bulk-grid tr:hover td.row-num { background:#dbeafe; }
+
+        /* ── 검색/뷰 컨트롤 ── */
+        .detail-controls { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+        .search-input { padding:5px 11px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.76rem; font-family:inherit; outline:none; width:160px; color:#334155; background:white; }
+        .search-input:focus { border-color:#FD9C26; }
+        .search-input::placeholder { color:#b0b8c4; }
+        .view-btn { padding:4px 12px; border:1.5px solid #dde3ea; border-radius:6px; font-size:0.74rem; font-weight:700; cursor:pointer; background:#f1f5f9; color:#64748b; font-family:inherit; transition:all 0.15s; }
+        .view-btn.active { background:#334155; color:white; border-color:#334155; }
+        .view-btn:not(.active):hover { background:#e2e8f0; }
+        .excel-btn { padding:4px 12px; border:1.5px solid #86efac; border-radius:6px; font-size:0.74rem; font-weight:700; cursor:pointer; background:#f0fdf4; color:#15803d; font-family:inherit; transition:all 0.15s; }
+        .excel-btn:hover { background:#dcfce7; border-color:#4ade80; }
+
+        /* ── D-Day 뱃지 ── */
+        .dday-badge { display:inline-block; padding:1px 6px; border-radius:4px; font-size:0.63rem; font-weight:800; white-space:nowrap; }
+
+        /* ── 단계 진행률 바 ── */
+        .phase-progress { height:3px; background:#f1f5f9; border-radius:2px; margin-top:4px; overflow:hidden; }
+        .phase-progress-fill { height:100%; border-radius:2px; }
+
+        /* ── 목록뷰 ── */
+        .list-view { overflow-x:auto; }
+        .list-table { width:100%; border-collapse:collapse; font-size:0.75rem; }
+        .list-table th { background:#f1f5f9; padding:7px 10px; border:1px solid #e2e8f0; white-space:nowrap; font-size:0.68rem; font-weight:800; color:#475569; text-align:center; position:sticky; top:0; z-index:5; }
+        .list-table td { padding:6px 10px; border:1px solid #f1f5f9; color:#334155; vertical-align:middle; white-space:nowrap; text-align:center; }
+        .list-table tbody tr:nth-child(even) td { background:#f1f5f9; }
+        .list-table tr:hover td { background:#eff6ff; cursor:pointer; }
+        .list-table td.list-td-name { font-weight:800; color:#0f172a; white-space:normal; min-width:130px; text-align:left; }
+        .list-pct-bar { height:5px; background:#e2e8f0; border-radius:3px; min-width:60px; overflow:hidden; }
+        .list-pct-fill { height:100%; border-radius:3px; }
+        .list-no-data { text-align:center; padding:40px; color:#94a3b8; font-size:0.85rem; }
+        .list-th-sort { cursor:pointer; user-select:none; white-space:nowrap; }
+        .list-th-sort:hover { background:#f1f5f9; color:#1e293b; }
+        .list-th-sort.asc::after  { content:' ▲'; font-size:0.65rem; color:#3b82f6; }
+        .list-th-sort.desc::after { content:' ▼'; font-size:0.65rem; color:#3b82f6; }
+        .col-panel-wrap { position:relative; display:inline-block; }
+        .col-panel {
+            display:none; position:absolute; top:calc(100% + 4px); right:0;
+            background:white; border:1.5px solid #e2e8f0; border-radius:10px;
+            box-shadow:0 8px 24px rgba(0,0,0,0.12); padding:10px 14px;
+            z-index:200; min-width:160px; gap:6px; flex-direction:column;
+        }
+        .col-panel.open { display:flex; }
+        .col-panel label { display:flex; align-items:center; gap:7px; font-size:0.76rem; font-weight:600; color:#334155; cursor:pointer; white-space:nowrap; }
+        .col-panel input[type=checkbox] { width:13px; height:13px; accent-color:#3b82f6; cursor:pointer; }
+        .btn-col-toggle { padding:4px 10px; border-radius:6px; font-size:0.72rem; font-weight:700; border:1.5px solid var(--border-color); background:white; color:#64748b; cursor:pointer; font-family:inherit; transition:all 0.15s; white-space:nowrap; }
+        .btn-col-toggle:hover { background:#f1f5f9; }
+        .empty-state {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 48px 24px; text-align: center; gap: 12px;
+        }
+        .empty-state-icon { font-size: 2.8rem; opacity: 0.35; line-height: 1; }
+        .empty-state-title { font-size: 0.95rem; font-weight: 800; color: #475569; }
+        .empty-state-desc { font-size: 0.78rem; color: #94a3b8; font-weight: 500; line-height: 1.6; }
+        .empty-state-btn {
+            margin-top: 4px; padding: 6px 18px; border-radius: 8px; font-size: 0.78rem; font-weight: 700;
+            border: 1.5px solid #cbd5e1; background: white; color: #475569; cursor: pointer;
+            font-family: inherit; transition: all 0.15s;
+        }
+        .empty-state-btn:hover { background: #f1f5f9; border-color: #94a3b8; color: #1e293b; }
+
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+        .project-card {
+            background: white; border-radius: 10px; border: 1px solid var(--border-color);
+            padding: 9px 12px 8px; border-left: 5px solid #cbd5e1; transition: all 0.2s;
+            cursor: pointer; display: flex; flex-direction: column; gap: 0;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .project-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.07); }
+
+        /* ── 카드 공통 행 구분선 ── */
+        .card-divider { border: none; border-top: 1px dashed #e9ecf0; margin: 6px 0; }
+
+        /* ── 상태 뱃지 ── */
+        .status-tag {
+            display: inline-block; font-size: 0.63rem; font-weight: 800;
+            padding: 1px 7px; border-radius: 8px;
+            background: #fef08a; color: #854d0e;
+        }
+
+        /* ── 카드 단계 행 ── */
+        .card-phase-row {
+            display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap;
+            font-size: 0.72rem; color: #78716c;
+        }
+        .card-phase-name { font-weight: 800; color: #92400e; }
+        .card-phase-date { font-size: 0.67rem; color: #a8a29e; }
+
+        /* ── 카드 단계 상세 설명 ── */
+        .card-phase-desc {
+            font-size: 0.72rem; color: #71717a; line-height: 1.4;
+        }
+
+        /* ── 카드 담당 행 ── */
+        .card-meta-row {
+            display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center;
+            font-size: 0.72rem;
+        }
+        .card-meta-item { display: flex; align-items: center; gap: 3px; }
+        .card-meta-label {
+            font-size: 0.6rem; font-weight: 800; padding: 1px 5px; border-radius: 6px;
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .card-meta-value { font-weight: 700; color: #334155; }
+
+        /* ── 카드 푸터 메트릭 ── */
+        .card-footer-metrics {
+            display: flex; align-items: center; gap: 0;
+            background: #f8fafc; border-radius: 7px; overflow: hidden;
+            border: 1px solid #e8ecf0; margin-top: 2px;
+        }
+        .card-metric {
+            flex: 1; padding: 4px 6px; text-align: center;
+            border-right: 1px solid #e8ecf0;
+        }
+        .card-metric:last-child { border-right: none; }
+        .card-metric-label { font-size: 0.57rem; color: #94a3b8; font-weight: 700; letter-spacing: 0.02em; }
+        .card-metric-value { font-size: 0.82rem; font-weight: 900; color: #334155; margin-top: 1px; }
+        .card-metric-unit { font-size: 0.57rem; font-weight: 600; }
+        .card-metric.open { background: #f8fafc; }
+        .card-metric.open .card-metric-label { color: #94a3b8; }
+        .card-metric.open .card-metric-value { color: #1e293b; font-size: 0.75rem; }
+        .card-metric.budget .card-metric-value { color: #1e293b; }
+
+        /* 구) 스타일 호환용 (삭제 안전) */
+        .card-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 2px; overflow: hidden; line-height: 1.35; color: #1e293b; }
+        .status-desc { font-size: 0.77rem; color: #71717a; line-height: 1.4; font-weight: 500; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15,23,42,0.45); display: none; align-items: center; justify-content: center;
+            z-index: 1000; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+        }
+        .modal-content {
+            background: white; border-radius: 16px; width: 90%; max-width: 480px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .modal-top-bar { height: 6px; width: 100%; }
+        .modal-body { padding: 22px 24px 26px; }
+        .modal-close {
+            position: absolute; top: 14px; right: 16px;
+            width: 26px; height: 26px; border-radius: 50%;
+            background: #f1f5f9; border: none; cursor: pointer;
+            font-size: 15px; color: #64748b; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s;
+        }
+        .modal-close:hover { background: #e2e8f0; color: #1e293b; }
+        .modal-proj-label { font-size: 0.7rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.04em; margin-bottom: 3px; }
+        .modal-phase-title { font-size: 1.15rem; font-weight: 900; color: #0f172a; line-height: 1.3; margin-bottom: 14px; }
+        .modal-date-row {
+            display: flex; align-items: center; gap: 8px;
+            background: #f8fafc; border: 1px solid #e8ecf0; border-radius: 8px;
+            padding: 7px 12px; margin-bottom: 16px;
+        }
+        .modal-date-key {
+            font-size: 0.65rem; font-weight: 800; color: #475569;
+            background: #e2e8f0; padding: 2px 7px; border-radius: 5px; white-space: nowrap;
+        }
+        .modal-date-val { font-size: 0.84rem; font-weight: 700; color: #334155; }
+        .modal-desc-label {
+            font-size: 0.65rem; font-weight: 800; color: #94a3b8;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 10px;
+        }
+        .modal-desc-text { font-size: 0.88rem; line-height: 1.7; color: #334155; white-space: pre-wrap; }
+        /* 구) 호환용 */
+        .modal-header { display:none; }
+        .modal-phase-badge { display:none; }
+
+        #msgBox {
+            position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 10px;
+            background: #1e293b; color: white; font-weight: bold; z-index: 2000; display: none;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+        }
+
+        footer { text-align: center; margin-top: 50px; color: var(--text-sub); font-size: 0.8rem; padding-bottom: 30px; }
+
+        /* ═══════════════════════════════════════════════
+           반응형 — 태블릿 (≤ 1024px)
+        ═══════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            :root { --sidebar-width: 240px; }
+            body { padding: 8px 12px; }
+            .header-title h1 { font-size: 1.4rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .card-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-grid { grid-template-columns: repeat(2, 1fr); }
+            .io-toolbar { flex-wrap: wrap; gap: 5px; }
+            .gantt-content { min-width: 1100px; }
+        }
+
+        /* ═══════════════════════════════════════════════
+           반응형 — 모바일 (≤ 640px)
+        ═══════════════════════════════════════════════ */
+        @media (max-width: 640px) {
+            :root { --sidebar-width: 160px; }
+            body { padding: 6px 8px; }
+
+            /* 헤더 */
+            header { gap: 6px; }
+            .header-title h1 { font-size: 1.1rem; margin-top: 2px; }
+            .header-title .sub-tag { font-size: 0.75rem; }
+            .live-clock-container { padding: 6px 10px; gap: 7px; }
+            .clock-date { font-size: 0.72rem; }
+            .clock-time { font-size: 0.72rem; }
+
+            /* 검색 */
+            #search-input { width: 100% !important; }
+            header > div:last-child { width: 100%; }
+            header > div:last-child > div { width: 100%; }
+            header > div:last-child > div input { flex: 1; }
+
+            /* 내비 탭 */
+            .nav-tab { font-size: 0.72rem; padding: 4px 10px; }
+
+            /* io 툴바 */
+            .io-toolbar { flex-wrap: wrap; padding: 6px 10px; }
+            .io-toolbar-divider { display: none; }
+            .io-info { width: 100%; font-size: 0.68rem; }
+
+            /* 통계 카드 */
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+            .stat-card { padding: 8px 10px 8px 12px; }
+            .stat-card .value { font-size: 1.15rem; }
+
+            /* 간트 */
+            .gantt-header { padding: 8px 10px; }
+            .gantt-header h2 { font-size: 0.9rem; }
+            .gantt-scroll { padding: 8px; }
+            .gantt-content { min-width: 900px; }
+            .project-name { font-size: 0.82rem; }
+            .project-meta { font-size: 0.65rem; }
+
+            /* 카드뷰 */
+            .card-grid { grid-template-columns: 1fr; }
+
+            /* 상세 컨트롤 */
+            .detail-controls { flex-wrap: wrap; gap: 5px; }
+            .view-btn, .excel-btn { font-size: 0.7rem; padding: 4px 10px; }
+
+            /* 단건 등록 폼 */
+            .form-grid { grid-template-columns: 1fr; }
+            .form-section-title { flex-direction: column; align-items: flex-start; gap: 6px; }
+            .form-section-title .title-right { width: 100%; justify-content: flex-end; }
+            .input-section { padding: 12px 14px; }
+            .phase-block-body { overflow-x: auto; }
+
+            /* 일괄 등록 안내 */
+            .bulk-mobile-notice {
+                display: block !important;
+                background: #fff7ed; border: 1.5px solid #fdba74; border-radius: 8px;
+                padding: 10px 14px; font-size: 0.78rem; color: #c2410c; font-weight: 700;
+                margin-bottom: 10px;
+            }
+
+            /* 모달 */
+            .modal-content { width: 96%; }
+            .modal-body { padding: 16px; }
+
+            /* 목록뷰 */
+            .list-table { font-size: 0.68rem; }
+            .list-table th, .list-table td { padding: 6px 5px; }
+
+            /* 컴팩트 버튼 */
+            .btn-compact { font-size: 0.68rem; padding: 3px 8px; }
+
+            /* 필터 버튼 */
+            .filter-btn { padding: 6px 12px; font-size: 0.72rem; }
+        }
+
+        .color-global-light { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
+        .color-mgmt-light { background-color: #ecfdf5; color: #047857; border: 1px solid #d1fae5; }
+        .color-deposit-light { background-color: #eef2ff; color: #4338ca; border: 1px solid #e0e7ff; }
+        .color-loan-light { background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+
+        /* ── 내보내기/가져오기 툴바 ─────────────────────── */
+        .io-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            padding: 7px 14px;
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .io-toolbar-label {
+            font-size: 0.68rem;
+            font-weight: 900;
+            color: white;
+            background: #64748b;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-right: 4px;
+            letter-spacing: 0.06em;
+        }
+        .io-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 13px;
+            border-radius: 7px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            border: 1.5px solid;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .io-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+        .io-btn:active { transform: translateY(0); }
+        .io-btn.export { border-color: #93c5fd; color: #1d4ed8; background: #eff6ff; }
+        .io-btn.export:hover { background: #dbeafe; border-color: #60a5fa; }
+        .io-btn.import { border-color: #6ee7b7; color: #065f46; background: #ecfdf5; }
+        .io-btn.import:hover { background: #d1fae5; border-color: #34d399; }
+        .io-btn.merge  { border-color: #c4b5fd; color: #5b21b6; background: #f5f3ff; }
+        .io-btn.merge:hover  { background: #ede9fe; border-color: #a78bfa; }
+        .io-toolbar-divider { width: 1px; height: 18px; background: #e2e8f0; margin: 0 4px; flex-shrink: 0; }
+        .io-info { margin-left: auto; font-size: 0.72rem; color: #94a3b8; font-weight: 600; }
+
+        /* ── Windows 전용 호환성 스타일 ──────────────────── */
+
+        /* 윈도우 스크롤바 커스텀 (Chrome/Edge) */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 날짜 입력 달력 아이콘 커서 */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0.6;
+            padding: 2px;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+        /* 날짜 입력 YYYY.MM.DD 플레이스홀더 */
+        .date-wrap {
+            position: relative;
+            display: block;
+        }
+        .date-wrap::after {
+            content: 'YYYY.MM.DD';
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #c8d0d8;
+            font-size: 0.95rem;
+            pointer-events: none;
+            display: none;
+        }
+        .date-wrap.ph-show::after { display: block; }
+        .date-wrap.ph-show:focus-within::after { display: none; }
+        .date-wrap.ph-show input[type="date"]:not(:focus)::-webkit-datetime-edit { color: transparent; }
+        .date-wrap input[type="date"]:focus::-webkit-datetime-edit { color: inherit; }
+
+        /* 숫자 입력 스피너 제거 (윈도우 기본 스피너 지저분함) */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        /* select 커스텀 스타일 (윈도우 기본 화살표 통일) */
+        .form-group select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        /* 포커스 링 윈도우 Edge 스타일 통일 */
+        input:focus, select:focus, button:focus {
+            outline: 2px solid var(--blue);
+            outline-offset: 1px;
+        }
+
+        /* 버튼 윈도우 기본 스타일 초기화 */
+        button { font-family: inherit; }
+
+        /* 간트 영역 가로 스크롤바 */
+        .gantt-scroll::-webkit-scrollbar { height: 6px; }
+        .gantt-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+        .gantt-scroll::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+    </style>
+</head>
+<body>
+
+    <div id="msgBox"></div>
+
+    <div id="taskModal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+        <div class="modal-content">
+            <div id="modalTopBar" class="modal-top-bar"></div>
+            <div class="modal-body">
+                <button class="modal-close" onclick="closeModal()">✕</button>
+                <div id="modalProjectName" class="modal-proj-label"></div>
+                <div id="modalPhaseTitle" class="modal-phase-title"></div>
+                <div class="modal-date-row">
+                    <span class="modal-date-key">단계일정</span>
+                    <span id="modalPhaseDates" class="modal-date-val"></span>
+                </div>
+                <div class="modal-desc-label">상세 추진 내용</div>
+                <div id="modalTaskDesc" class="modal-desc-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="nav-tabs">
+            <div id="tabDash" class="nav-tab active" onclick="switchView('dashboard')">&#9632; 대시보드</div>
+            <div id="tabAdmin" class="nav-tab" onclick="switchView('admin')">&#43; 프로젝트 추가</div>
+        </div>
+
+        <div id="dashboardView">
+            <header>
+                <div class="header-title">
+                    <div id="header-sub-tag" class="sub-tag">Tech Development HQ Roadmap 2026</div>
+                    <h1 id="header-title">2026 테크개발본부 SI 프로젝트 현황</h1>
+                    <div id="filter-container" class="filter-group" style="margin-top:8px;"></div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px;">
+                    <div class="live-clock-container">
+                        <span id="live-date" class="clock-date">2026년 00월 00일 (요일)</span>
+                        <span class="clock-sep"></span>
+                        <div class="clock-time">
+                            <span class="clock-live-dot"></span>
+                            <span id="live-time">00:00</span>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:5px;align-items:center;">
+                        <input class="search-input" type="search" id="search-input" placeholder="통합 검색 (사업명·PM·부서·팀)..." onkeydown="if(event.key==='Enter')setSearch(this.value)" style="width:210px;">
+                        <button onclick="setSearch(document.getElementById('search-input').value)" style="padding:5px 12px;border:1.5px solid rgba(255,255,255,0.15);border-radius:7px;font-size:0.74rem;font-weight:700;background:#475569;color:white;cursor:pointer;font-family:inherit;white-space:nowrap;">검색</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 내보내기/가져오기 툴바 -->
+            <div class="io-toolbar">
+                <span class="io-toolbar-label">DATA</span>
+                <button class="io-btn export" onclick="exportProjects()" title="현재 프로젝트 데이터를 JSON 파일로 저장합니다">
+                    &#8593; 내보내기
+                </button>
+                <button class="io-btn import" onclick="document.getElementById('import-file-input').click()" title="JSON 파일을 불러와 현재 데이터를 덮어씁니다">
+                    &#8595; 가져오기
+                </button>
+                <button class="io-btn merge" onclick="document.getElementById('merge-file-input').click()" title="JSON 파일을 불러와 기존 데이터에 병합합니다 (중복 제외)">
+                    &#8596; 병합 가져오기
+                </button>
+                <div class="io-toolbar-divider"></div>
+                <span class="io-info" id="io-last-saved">- 저장 정보 로딩 중...</span>
+            </div>
+            <!-- 파일 입력 (숨김) -->
+            <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="handleImportFile(event, false)">
+            <input type="file" id="merge-file-input"  accept=".json" style="display:none" onchange="handleImportFile(event, true)">
+
+            <div class="stats-grid">
+                <div class="stat-card sc-total">
+                    <div class="label">전체 SI 프로젝트</div>
+                    <div class="value" id="stat-count">0건</div>
+                </div>
+                <div class="stat-card sc-budget">
+                    <div class="label">총 예산 규모</div>
+                    <div class="value" id="stat-budget" style="color: var(--gold);">0.0억</div>
+                </div>
+                <div class="stat-card sc-early">
+                    <div class="label">상반기 완료 예정</div>
+                    <div class="value" id="stat-early-open" style="color: var(--emerald);">0건</div>
+                </div>
+                <div class="stat-card sc-mm">
+                    <div class="label">총 투입 리소스</div>
+                    <div class="value" id="stat-mm" style="color: var(--indigo);">0 M/M</div>
+                </div>
+            </div>
+
+            <div class="gantt-container">
+                <div class="gantt-header">
+                    <h2>프로젝트 로드맵</h2>
+                    <button class="btn-compact" id="btn-compact" onclick="toggleCompact()">⊟ 컴팩트</button>
+                </div>
+                <div class="gantt-scroll">
+                    <div class="gantt-content">
+                        <div class="timeline-header">
+                            <div></div>
+                            <div id="month-header" class="month-grid"></div>
+                        </div>
+                        <div id="gantt-rows"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px;margin:16px 0 6px;flex-wrap:wrap;">
+                <h2 style="font-size:1.05rem;font-weight:800;color:#1e293b;white-space:nowrap;">프로젝트 상세</h2>
+                <span id="detail-count" style="font-size:0.72rem;font-weight:800;background:#f1f5f9;color:#475569;padding:2px 9px;border-radius:20px;white-space:nowrap;"></span>
+                <div class="detail-controls">
+                    <button class="view-btn active" id="btn-view-card" onclick="setView('card')">카드뷰</button>
+                    <button class="view-btn" id="btn-view-list" onclick="setView('list')">목록뷰</button>
+                    <button class="excel-btn" onclick="exportExcel()">엑셀 내보내기</button>
+                    <button class="excel-btn" id="btn-delete-selected" onclick="deleteSelected()" style="display:none;background:#fee2e2;color:#b91c1c;border-color:#fca5a5;">선택 삭제</button>
+                    <div class="col-panel-wrap" id="col-panel-wrap" style="display:none;">
+                        <button class="btn-col-toggle" onclick="toggleColPanel()">컬럼 ▾</button>
+                        <div class="col-panel" id="col-panel"></div>
+                    </div>
+                </div>
+                <div style="flex:1;height:1px;background:var(--border-color);min-width:10px;"></div>
+            </div>
+            <div style="margin-bottom:10px;padding:4px 10px;border:1px dashed #e2e8f0;border-radius:5px;font-size:0.65rem;color:#94a3b8;display:inline-block;letter-spacing:0.02em;">더블클릭하면 내용을 수정할 수 있습니다</div>
+            <div id="card-grid" class="card-grid"></div>
+            <div id="list-view" class="list-view" style="display:none;"></div>
+        </div>
+
+        <div id="adminView" class="input-section">
+            <!-- 서브탭 -->
+            <div class="admin-tabs">
+                <button class="admin-tab-btn active" id="adminTabSingle" onclick="switchAdminTab('single')">단건 등록</button>
+                <button class="admin-tab-btn" id="adminTabBulk" onclick="switchAdminTab('bulk')">일괄 등록 <small style="font-weight:400;">(최대 20건)</small></button>
+            </div>
+
+            <!-- 단건 등록 패널 -->
+            <div id="adminSingle">
+                <!-- 폼 제목 -->
+                <div class="form-section-title">
+                    <div class="title-left">
+                        <h2 id="form-title">신규 프로젝트 등록</h2>
+                        <span id="form-mode-badge" class="form-mode-badge" style="display:none;"></span>
+                    </div>
+                    <div class="title-right">
+                        <button class="btn-top-delete" id="btn-delete" onclick="deleteProject()">프로젝트 삭제</button>
+                        <div class="btn-top-sep" id="btn-top-sep"></div>
+                        <button class="btn-top-reset" id="btn-top-reset" onclick="handleResetOrCancel()">전체 항목 초기화</button>
+                        <button class="btn-top-save" id="btn-submit" onclick="saveNewProject()">등록 및 로드맵 반영</button>
+                    </div>
+                </div>
+
+                <!-- 기본 정보 블록 -->
+                <div class="form-block">
+                    <div class="form-block-label">기본 정보</div>
+                    <div class="form-grid">
+                        <div class="form-group req">
+                            <label>프로젝트명</label>
+                            <input type="text" id="in-name" placeholder="프로젝트명을 입력하세요" maxlength="60">
+                        </div>
+                        <div class="form-group req">
+                            <label>본부/부서</label>
+                            <select id="in-dept">
+                                <option value="">-- 부서를 선택하세요 --</option>
+                                <option value="수신IT개발부">수신IT개발부</option>
+                                <option value="여신IT개발부">여신IT개발부</option>
+                                <option value="글로벌IT개발부">글로벌IT개발부</option>
+                                <option value="경영정보개발부">경영정보개발부</option>
+                            </select>
+                        </div>
+                        <div class="form-group req">
+                            <label>담당 팀</label>
+                            <input type="text" id="in-team" placeholder="예: 여신심사팀" maxlength="30">
+                        </div>
+                        <div class="form-group req">
+                            <label>담당 PM</label>
+                            <input type="text" id="in-pm" placeholder="PM 성명을 입력하세요" maxlength="20">
+                        </div>
+                        <div class="form-group req">
+                            <label>수요부서명</label>
+                            <input type="text" id="in-client-dept" placeholder="예: 개인여신부" maxlength="40">
+                        </div>
+                        <div class="form-group req">
+                            <label>투입 공수 (M/M)</label>
+                            <input type="text" id="in-mm" placeholder="예: 1,200" inputmode="numeric" oninput="fmtComma(this,false)">
+                        </div>
+                        <div class="form-group req">
+                            <label>투입 예산 (억원)</label>
+                            <input type="text" id="in-budget" placeholder="예: 25" inputmode="decimal" oninput="fmtComma(this,true)">
+                        </div>
+                        <div class="form-group req">
+                            <label>최종 오픈 예정일</label>
+                            <div class="date-wrap ph-show" style="max-width: 180px;">
+                                <input type="date" id="in-open" min="2000-01-01" max="2099-12-31" onchange="validateSingleDate(this)" style="width:100%;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 단계별 상세 블록 -->
+                <div class="form-block">
+                    <div class="form-block-label">단계별 상세 내용</div>
+                    <div id="phase-inputs-container"></div>
+                </div>
+
+            </div>
+
+            <!-- 일괄 등록 패널 -->
+            <div id="adminBulk" style="display:none;">
+                <div class="bulk-mobile-notice" style="display:none;">⚠ 일괄 등록은 넓은 화면(PC)에서 사용하시길 권장합니다.</div>
+                <div class="bulk-toolbar">
+                    <button class="btn-bulk add" onclick="addBulkRow()">+ 행 추가</button>
+                    <button class="btn-bulk del" onclick="deleteBulkRows()">- 행 삭제</button>
+                    <span id="bulk-row-count" style="font-size:0.72rem;font-weight:700;color:#94a3b8;padding:0 2px;">1 / 20</span>
+                    <div class="bulk-toolbar-sep"></div>
+                    <label class="btn-bulk import" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+                        <input type="file" accept=".csv" style="display:none;" onchange="importBulkCSV(event)">
+                        ↓ CSV 가져오기
+                    </label>
+                    <button class="btn-bulk tmpl" onclick="downloadBulkTemplate()">CSV 템플릿</button>
+                    <div class="bulk-toolbar-sep"></div>
+                    <button class="btn-bulk save" onclick="saveBulk()">등록</button>
+                    <button class="btn-bulk reset" onclick="clearBulkGrid()">초기화</button>
+                </div>
+                <div class="bulk-notice">
+                    <span class="n1">사업명이 입력된 행만 등록됩니다</span> &nbsp;·&nbsp; <span class="n2">사업명이 동일한 경우 중복 등록이 제한됩니다</span> &nbsp;·&nbsp; <span class="n3">신규 작성 시 <b>CSV 템플릿</b> 버튼으로 양식을 먼저 다운로드하세요</span>                </div>
+                <div class="bulk-scroll">
+                    <table class="bulk-grid">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="width:28px;"><input type="checkbox" id="bulk-chk-all" title="전체 선택/해제" onchange="toggleAllBulkChk(this.checked)"></th>
+                                <th rowspan="2">No</th>
+                                <th rowspan="2" style="min-width:130px;">사업명</th>
+                                <th rowspan="2" style="min-width:80px;">부서</th>
+                                <th rowspan="2" style="min-width:72px;">담당팀</th>
+                                <th rowspan="2" style="min-width:60px;">PM</th>
+                                <th rowspan="2" style="min-width:72px;">수요부서</th>
+                                <th rowspan="2" style="min-width:54px;">M/M</th>
+                                <th rowspan="2" style="min-width:54px;">예산(억)</th>
+                                <th rowspan="2" style="min-width:90px;">오픈예정일</th>
+                                <th colspan="4" class="ph-h1">1단계</th>
+                                <th colspan="4" class="ph-h2">2단계</th>
+                                <th colspan="4" class="ph-h3">3단계</th>
+                                <th colspan="4" class="ph-h4">4단계</th>
+                                <th colspan="4" class="ph-h5">5단계</th>
+                            </tr>
+                            <tr>
+                                <th class="ph-h1" style="min-width:66px;">단계명</th><th class="ph-h1" style="min-width:86px;">시작일</th><th class="ph-h1" style="min-width:86px;">종료일</th><th class="ph-h1" style="min-width:100px;">설명</th>
+                                <th class="ph-h2" style="min-width:66px;">단계명</th><th class="ph-h2" style="min-width:86px;">시작일</th><th class="ph-h2" style="min-width:86px;">종료일</th><th class="ph-h2" style="min-width:100px;">설명</th>
+                                <th class="ph-h3" style="min-width:66px;">단계명</th><th class="ph-h3" style="min-width:86px;">시작일</th><th class="ph-h3" style="min-width:86px;">종료일</th><th class="ph-h3" style="min-width:100px;">설명</th>
+                                <th class="ph-h4" style="min-width:66px;">단계명</th><th class="ph-h4" style="min-width:86px;">시작일</th><th class="ph-h4" style="min-width:86px;">종료일</th><th class="ph-h4" style="min-width:100px;">설명</th>
+                                <th class="ph-h5" style="min-width:66px;">단계명</th><th class="ph-h5" style="min-width:86px;">시작일</th><th class="ph-h5" style="min-width:86px;">종료일</th><th class="ph-h5" style="min-width:100px;">설명</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bulk-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <footer style="margin-top: 30px;">
+            <span id="footer-year"></span> Tech Development HQ
+            <span style="margin: 0 10px; color: #cbd5e1;">|</span>
+            <span style="color: #94a3b8; font-size: 0.72rem;">Crafted by Brian &middot; Powered by Claude Code &amp; Gemini</span>
+            <span style="margin: 0 10px; color: #cbd5e1;">|</span>
+            <span style="color: #94a3b8; font-size: 0.72rem;">Optimized for Chrome &amp; Edge</span>
+            <span style="margin: 0 10px; color: #cbd5e1;">|</span>
+            <button onclick="resetAllData()" style="background: none; border: 1px solid #cbd5e1; color: #94a3b8; font-size: 0.72rem; padding: 3px 8px; border-radius: 5px; cursor: pointer; font-family: inherit;" title="저장된 모든 데이터를 삭제합니다">대시보드 초기화</button>
+        </footer>
+    </div>
+
+    <script>
+        const CURRENT_YEAR = new Date().getFullYear();
+        const YEAR_START = new Date(`${CURRENT_YEAR}-01-01`).getTime();
+        const YEAR_END   = new Date(`${CURRENT_YEAR}-12-31`).getTime();
+        const YEAR_DURATION = YEAR_END - YEAR_START;
+        const LS_KEY = `si_projects_${CURRENT_YEAR}`;
+
+        let editingProjectId = null;
+        let compactView = false;
+        let listSortCol = null, listSortDir = 1;
+        const LIST_COLS = [
+            {key:'no',      label:'No',        sortFn:null},
+            {key:'name',    label:'사업명',     sortFn:(a,b)=>a.name.localeCompare(b.name,'ko')},
+            {key:'dept',    label:'부서명',     sortFn:(a,b)=>a.dept.localeCompare(b.dept,'ko')},
+            {key:'team',    label:'팀명',       sortFn:(a,b)=>a.team.localeCompare(b.team,'ko')},
+            {key:'pm',      label:'PM',         sortFn:(a,b)=>a.pm.localeCompare(b.pm,'ko')},
+            {key:'client',  label:'수요부서',   sortFn:(a,b)=>(a.clientDept||'').localeCompare(b.clientDept||'','ko')},
+            {key:'period',  label:'개발기간',   sortFn:null},
+            {key:'duration',label:'총개발기간', sortFn:null},
+            {key:'dday',    label:'D-Day',      sortFn:(a,b)=>new Date(a.open)-new Date(b.open)},
+            {key:'open',    label:'오픈일',     sortFn:(a,b)=>new Date(a.open)-new Date(b.open)},
+            {key:'phase',   label:'현재단계',   sortFn:null},
+            {key:'mm',      label:'M/M',        sortFn:(a,b)=>a.mm-b.mm},
+            {key:'budget',  label:'예산(억)',   sortFn:(a,b)=>a.budget-b.budget},
+        ];
+        let listColVisible = Object.fromEntries(LIST_COLS.map(c=>[c.key,true]));
+
+        // YYYY-MM-DD 문자열을 로컬 자정 기준으로 파싱 (UTC 파싱 시 한국 시간 오전 9시 오프셋 문제 방지)
+        function parseDate(str) {
+            if (!str) return null;
+            const [y, m, d] = str.split('-').map(Number);
+            return new Date(y, m - 1, d);
+        }
+
+        // ── 기본 샘플 데이터 ─────────────────────────────────
+        const DEFAULT_PROJECTS = [
+            { id: 1, dept: '글로벌IT개발부', team: '글로벌결산팀', pm: '홍길동', name: '인니중간지주 시스템 구축', open: '2027-01-01', mm: 365, budget: 54.8, phaseDetails: [
+                { name: '1단계:선정', start: '2026-01-01', end: '2026-03-31', color: 'var(--phase-1)', desc: '현지 계열사 결산 체계 분석 및 데이터 연계 설계' },
+                { name: '2단계:분석', start: '2026-04-01', end: '2026-07-31', color: 'var(--phase-2)', desc: '중간지주 재무제표 산출 로직 설계 및 요건 반영' },
+                { name: '3단계:개발', start: '2026-08-01', end: '2026-11-30', color: 'var(--phase-3)', desc: '연결 결산시스템 구축 및 생성 모듈 개발' },
+                { name: '4단계:테스트', start: '2026-12-01', end: '2026-12-31', color: 'var(--phase-4)', desc: '단위/통합 테스트 및 현지 금융기관 연계 검증' }
+            ]},
+            { id: 2, dept: '경영정보개발부', team: '내부통제팀', pm: '성춘향', name: '보이스피싱 피해예측 고도화', open: '2026-12-15', mm: 40, budget: 6.0, phaseDetails: [
+                { name: '1단계:분석', start: '2026-05-01', end: '2026-06-30', color: 'var(--phase-1)', desc: '의심 거래 패턴 분석 및 이상 거래 탐지 룰 설계' },
+                { name: '2단계:구현', start: '2026-07-01', end: '2026-09-30', color: 'var(--phase-2)', desc: '실시간 수집 인프라 및 머신러닝 모델 연동' },
+                { name: '3단계:테스트', start: '2026-10-01', end: '2026-11-30', color: 'var(--phase-3)', desc: '과거 데이터 기반 탐지율 검증 및 보안 점검' },
+                { name: '4단계:안정화', start: '2026-12-01', end: '2026-12-31', color: 'var(--phase-4)', desc: '관제 시스템 오픈 및 24시간 장애 대응' }
+            ]},
+            { id: 3, dept: '여신IT개발부', team: '여신플랫폼팀', pm: '이몽룡', name: '개인여신 플랫폼 재구축', open: '2026-10-06', mm: 648, budget: 97.2, phaseDetails: [
+                { name: '1단계:설계', start: '2026-01-01', end: '2026-02-28', color: 'var(--phase-1)', desc: '차세대 코어뱅킹 기반 상세 설계 및 아키텍처 수립' },
+                { name: '2단계:개발', start: '2026-03-01', end: '2026-06-30', color: 'var(--phase-2)', desc: '비대면 여신 심사 로직 구현 및 모듈 개발' },
+                { name: '3단계:테스트', start: '2026-07-01', end: '2026-09-30', color: 'var(--phase-3)', desc: '전사 성능 테스트 및 데이터 최종 이행' },
+                { name: '4단계:안정화', start: '2026-10-01', end: '2026-10-31', color: 'var(--phase-4)', desc: '오픈 및 사후 관리 시스템 가동' }
+            ]}
+        ];
+
+        // ── localStorage 저장/불러오기 ────────────────────────
+        function saveToStorage() {
+            try {
+                localStorage.setItem(LS_KEY, JSON.stringify(projects));
+                localStorage.setItem(LS_KEY + '_meta', JSON.stringify({
+                    savedAt: new Date().toISOString(),
+                    count: projects.length
+                }));
+            } catch(e) {
+                console.warn('localStorage 저장 실패:', e);
+            }
+            updateSavedInfo();
+        }
+
+        function loadFromStorage() {
+            try {
+                const raw = localStorage.getItem(LS_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) return parsed; // 빈 배열도 저장된 상태로 인정
+                }
+            } catch(e) {
+                console.warn('localStorage 불러오기 실패:', e);
+            }
+            return null;
+        }
+
+        // 시작 시 localStorage → 없으면 빈 배열 (샘플 없음)
+        let projects = loadFromStorage() || [];
+
+        let currentFilter = '전체';
+        let currentSearch = '';
+        let currentView   = 'card';
+        const depts = ['전체', '수신IT개발부', '여신IT개발부', '글로벌IT개발부', '경영정보개발부'];
+
+        // 숫자 콤마 포매팅
+        function fmtComma(el, decimal) {
+            var cur = el.value.replace(/,/g, '');
+            if (decimal) {
+                cur = cur.replace(/[^0-9.]/g, '');
+                var dot = cur.indexOf('.');
+                if (dot !== -1) cur = cur.slice(0, dot + 1) + cur.slice(dot + 1).replace(/\./g, '');
+            } else {
+                cur = cur.replace(/[^0-9]/g, '');
+            }
+            var parts = cur.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            el.value = parts.join('.');
+        }
+        function rawNum(val) { return val.replace(/,/g, ''); }
+
+        // 날짜 wrapper ph-show 동기화
+        function syncDateWraps() {
+            document.querySelectorAll('.date-wrap input[type="date"]').forEach(function(el) {
+                var wrap = el.parentElement;
+                if (wrap && wrap.classList.contains('date-wrap')) {
+                    wrap.classList.toggle('ph-show', !el.value);
+                }
+            });
+        }
+
+        function switchView(view, isEdit = false) {
+            if(view === 'dashboard') {
+                document.getElementById('dashboardView').style.display = 'block';
+                document.getElementById('adminView').style.display = 'none';
+                document.getElementById('tabDash').classList.add('active');
+                document.getElementById('tabAdmin').classList.remove('active');
+                currentFilter = '전체';
+                currentSearch = '';
+                const si = document.getElementById('search-input'); if (si) si.value = '';
+                renderDashboard();
+            } else {
+                document.getElementById('dashboardView').style.display = 'none';
+                document.getElementById('adminView').style.display = 'block';
+                document.getElementById('tabDash').classList.remove('active');
+                document.getElementById('tabAdmin').classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                
+                if (!isEdit) {
+                    editingProjectId = null;
+                    // 단계 입력 영역 완전히 비우고 재생성 → 잔여값 없이 깨끗하게 초기화
+                    document.getElementById('phase-inputs-container').innerHTML = '';
+                }
+                initPhaseInputs();
+
+                if (!isEdit) {
+                    resetForm(true);
+                    document.getElementById('in-open').value = '';
+                    document.getElementById('form-title').innerText = "신규 프로젝트 등록";
+                    document.getElementById('btn-submit').innerText = "등록 및 로드맵 반영";
+                    document.getElementById('btn-delete').style.display = 'none';
+                    document.getElementById('btn-top-sep').classList.remove('visible');
+                    document.getElementById('btn-top-reset').innerText = '전체 항목 초기화';
+                    const badge = document.getElementById('form-mode-badge');
+                    badge.style.display = 'none'; badge.innerText = '';
+                    syncDateWraps();
+                }
+                // 단건 탭으로 기본 이동
+                switchAdminTab('single');
+            }
+        }
+
+        function switchAdminTab(tab) {
+            document.getElementById('adminSingle').style.display = tab === 'single' ? 'block' : 'none';
+            document.getElementById('adminBulk').style.display  = tab === 'bulk'   ? 'block' : 'none';
+            document.getElementById('adminTabSingle').classList.toggle('active', tab === 'single');
+            document.getElementById('adminTabBulk').classList.toggle('active', tab === 'bulk');
+            if (tab === 'bulk') { bulkGridInited = false; initBulkGrid(); }
+        }
+
+        function updateLiveClock() {
+            const now = new Date();
+            const years = now.getFullYear();
+            const months = String(now.getMonth() + 1).padStart(2, '0');
+            const dates = String(now.getDate()).padStart(2, '0');
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+            const day = dayNames[now.getDay()];
+            
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            document.getElementById('live-date').innerText = `${years}년 ${months}월 ${dates}일 (${day}요일)`;
+            document.getElementById('live-time').innerText = `${hours}:${minutes}`;
+        }
+
+        function validateSingleDate(el) {
+            // DD까지 완전히 입력된 경우에만 검증 (YYYY-MM-DD = 10자)
+            if (!el.value || el.value.length < 10) return;
+            const parts = el.value.split('-');
+            if (parts.length < 3 || parts[2].length < 2) return;
+            const yearPart = parts[0];
+            if (yearPart && yearPart.length > 4) {
+                el.value = "";
+                el.focus();
+                alert('연도는 4자리(예: 2026)로 입력해 주세요.');
+                return;
+            }
+            syncDateWraps();
+        }
+
+        /* 단계 간 순서 검증 디바운스 타이머 (DD 두 자리 입력 여유 확보) */
+        const _phaseValidateTimers = {};
+        function validatePhaseFlow(index, type) {
+            const currentEl = document.getElementById(`ph-${type}-${index}`);
+            if (!currentEl) return;
+
+            /* ① 포맷·연도 범위 검증은 즉시 실행 */
+            validateSingleDate(currentEl);
+
+            /* ② 단계 간 순서 검증은 700ms 뒤 실행 (두 번째 DD 자리 입력 대기) */
+            const key = `${index}-${type}`;
+            clearTimeout(_phaseValidateTimers[key]);
+            _phaseValidateTimers[key] = setTimeout(() => {
+                if (!currentEl.value || currentEl.value.length < 10) return;
+                const currentVal = new Date(currentEl.value);
+                if (isNaN(currentVal.getTime())) return;
+
+                if (type === 'start') {
+                    const endEl = document.getElementById(`ph-end-${index}`);
+                    if (endEl && endEl.value && currentVal > new Date(endEl.value)) {
+                        alert(`${index}단계: 시작일이 종료일보다 늦을 수 없습니다.`);
+                        currentEl.value = ''; syncDateWraps(); return;
+                    }
+                    if (index > 1) {
+                        const prevEndEl = document.getElementById(`ph-end-${index - 1}`);
+                        if (prevEndEl && prevEndEl.value && currentVal < new Date(prevEndEl.value)) {
+                            alert(`${index}단계: 시작일이 이전 단계 종료일(${prevEndEl.value})보다 빠릅니다.`);
+                            currentEl.value = '';
+                        }
+                    }
+                } else {
+                    const startEl = document.getElementById(`ph-start-${index}`);
+                    if (startEl && startEl.value && currentVal < new Date(startEl.value)) {
+                        alert(`${index}단계: 종료일이 시작일보다 빠를 수 없습니다.`);
+                        currentEl.value = '';
+                    }
+                }
+                syncDateWraps();
+            }, 700);
+        }
+
+        const PH_NAMES = ['분석/설계', '개발', '단위테스트', '통합테스트', '이행'];
+
+        // 단계별 컬러 (간트 단계 색상과 동일 계열)
+        const PH_COLORS = ['#FFE48F','#FFD347','#FFC000','#FAB12E','#F9A307'];
+        const PH_TEXT   = '#433100';
+
+        function initPhaseInputs() {
+            const container = document.getElementById('phase-inputs-container');
+            if (container.children.length > 0) return;
+            container.innerHTML = '';
+            for(let i=1; i<=5; i++) {
+                const req = i === 1 ? ' req' : '';
+                const optTxt = i >= 2 ? '<span style="font-size:0.6rem;color:#94a3b8;font-weight:500;margin-left:4px;">(선택)</span>' : '';
+                container.innerHTML += `
+                    <div class="phase-block">
+                        <div class="phase-block-header">
+                            <span class="phase-num-badge" style="background:${PH_COLORS[i-1]};color:${PH_TEXT};">${i}단계</span>
+                            <span style="font-size:0.72rem;color:#94a3b8;font-weight:600;">단계명 · 일정 · 추진내용${optTxt}</span>
+                        </div>
+                        <div class="phase-block-body">
+                            <div class="form-group${req}"><label>단계명</label><input type="text" id="ph-name-${i}" placeholder="예: ${PH_NAMES[i-1]}"></div>
+                            <div class="form-group${req}"><label>시작일</label><div class="date-wrap ph-show"><input type="date" id="ph-start-${i}" min="2000-01-01" max="2099-12-31" onchange="validatePhaseFlow(${i}, 'start')" style="width:100%;"></div></div>
+                            <div class="form-group${req}"><label>종료일</label><div class="date-wrap ph-show"><input type="date" id="ph-end-${i}" min="2000-01-01" max="2099-12-31" onchange="validatePhaseFlow(${i}, 'end')" style="width:100%;"></div></div>
+                            <div class="form-group${req}"><label>상세 추진 내용</label><textarea id="ph-desc-${i}" rows="2" placeholder="추진 내용을 요약하세요"></textarea></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function handleResetOrCancel() {
+            if (editingProjectId) {
+                cancelEdit();
+            } else {
+                resetForm();
+            }
+        }
+
+        function cancelEdit() {
+            editingProjectId = null;
+            switchView('dashboard');
+        }
+
+        function resetForm(silent = false) {
+            document.getElementById('in-name').value = '';
+            document.getElementById('in-dept').value = '';
+            document.getElementById('in-team').value = '';
+            document.getElementById('in-pm').value = '';
+            document.getElementById('in-client-dept').value = '';
+            document.getElementById('in-mm').value = '';
+            document.getElementById('in-budget').value = '';
+            document.getElementById('in-open').value = '';
+            for(let i=1; i<=5; i++) {
+                if(document.getElementById(`ph-name-${i}`)) {
+                    document.getElementById(`ph-name-${i}`).value = '';
+                    document.getElementById(`ph-start-${i}`).value = '';
+                    document.getElementById(`ph-end-${i}`).value = '';
+                    document.getElementById(`ph-desc-${i}`).value = '';
+                }
+            }
+            syncDateWraps();
+            if(!silent) alert('모든 항목이 초기화되었습니다.');
+        }
+
+        function deleteProject() {
+            if (!editingProjectId) return;
+            const p = projects.find(item => item.id === editingProjectId);
+            if (!p) return;
+            if (!confirm(`'${p.name}' 프로젝트를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+            projects = projects.filter(item => item.id !== editingProjectId);
+            saveToStorage();
+            editingProjectId = null;
+            switchView('dashboard');
+            renderDashboard();
+            showMsg(`'${p.name}' 프로젝트가 삭제되었습니다.`);
+        }
+
+        function editProject(id) {
+            const p = projects.find(item => item.id === id);
+            if (!p) return;
+            editingProjectId = id;
+            switchView('admin', true);
+            resetForm(true);
+
+            document.getElementById('form-title').innerText = p.name;
+            const badge = document.getElementById('form-mode-badge');
+            badge.style.display = 'inline-block'; badge.innerText = '수정 모드';
+            document.getElementById('btn-submit').innerText = "수정 내용 등록";
+            document.getElementById('btn-delete').style.display = 'inline-block';
+            document.getElementById('btn-top-sep').classList.add('visible');
+            document.getElementById('btn-top-reset').innerText = '수정 취소';
+
+            document.getElementById('in-name').value = p.name;
+            document.getElementById('in-dept').value = p.dept;
+            document.getElementById('in-team').value = p.team;
+            document.getElementById('in-pm').value = p.pm;
+            document.getElementById('in-client-dept').value = p.clientDept || '';
+            document.getElementById('in-mm').value = Number(p.mm).toLocaleString('en-US');
+            document.getElementById('in-budget').value = Number(p.budget).toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:1});
+            document.getElementById('in-open').value = p.open;
+
+            p.phaseDetails.forEach((pd, idx) => {
+                const i = idx + 1;
+                document.getElementById(`ph-name-${i}`).value = pd.name.split(':')[1] || pd.name;
+                document.getElementById(`ph-start-${i}`).value = pd.start;
+                document.getElementById(`ph-end-${i}`).value = pd.end;
+                document.getElementById(`ph-desc-${i}`).value = pd.desc;
+            });
+            syncDateWraps();
+        }
+
+        function saveNewProject() {
+            const name = document.getElementById('in-name').value.trim();
+            const dept = document.getElementById('in-dept').value;
+            const team = document.getElementById('in-team').value.trim();
+            const pm = document.getElementById('in-pm').value.trim();
+            const clientDept = document.getElementById('in-client-dept').value.trim();
+            const mmVal = rawNum(document.getElementById('in-mm').value);
+            const openVal = document.getElementById('in-open').value;
+            let budgetVal = rawNum(document.getElementById('in-budget').value);
+
+            // ── 1. 필수 항목 체크 (폼 순서 기준) ───────────
+            if (!name)       { alert('프로젝트명을 입력해 주세요.');       document.getElementById('in-name').focus();        return; }
+            if (!dept)       { alert('본부/부서를 선택해 주세요.');         document.getElementById('in-dept').focus();        return; }
+            if (!team)       { alert('담당 팀을 입력해 주세요.');           document.getElementById('in-team').focus();        return; }
+            if (!pm)         { alert('담당 PM을 입력해 주세요.');           document.getElementById('in-pm').focus();          return; }
+            if (!clientDept) { alert('수요부서명을 입력해 주세요.');         document.getElementById('in-client-dept').focus(); return; }
+            if (!mmVal)      { alert('투입 공수(M/M)를 입력해 주세요.');    document.getElementById('in-mm').focus();          return; }
+
+            // ── 2. 공수 유효성 ──────────────────────────────
+            const mm = parseFloat(mmVal);
+            if (isNaN(mm) || mm <= 0) {
+                alert('투입 공수(M/M)는 1 이상의 정수를 입력해 주세요.');
+                document.getElementById('in-mm').focus(); return;
+            }
+            if (!Number.isInteger(mm)) {
+                alert('투입 공수(M/M)는 정수로 입력해 주세요.');
+                document.getElementById('in-mm').focus(); return;
+            }
+
+            // ── 3. 예산 유효성 ──────────────────────────────
+            if (budgetVal === '') {
+                alert('투입 예산을 입력해 주세요.');
+                document.getElementById('in-budget').focus(); return;
+            }
+            const budget = parseFloat(budgetVal);
+            if (isNaN(budget) || budget < 0) {
+                alert('투입 예산은 0 이상의 숫자를 입력해 주세요.');
+                document.getElementById('in-budget').focus(); return;
+            }
+
+            // ── 4. 오픈예정일 체크 ──────────────────────────
+            if (!openVal) { alert('최종 오픈 예정일을 입력해 주세요.'); document.getElementById('in-open').focus(); return; }
+            const openDateObj = new Date(openVal);
+            const todayMidnight = new Date(); todayMidnight.setHours(0,0,0,0);
+            if (openDateObj < todayMidnight) { alert('최종 오픈 예정일이 오늘 이전입니다.\n오픈 예정일을 확인해 주세요.'); document.getElementById('in-open').focus(); return; }
+
+            // ── 5. 중복 프로젝트명 체크 ─────────────────────
+            const isDuplicate = projects.some(p => p.name === name && p.id !== editingProjectId);
+            if (isDuplicate) {
+                alert(`'${name}' 프로젝트가 이미 존재합니다.\n다른 프로젝트명을 사용해 주세요.`);
+                document.getElementById('in-name').focus(); return;
+            }
+
+            // ── 5. 단계별 일정 수집 및 부분 입력 체크 ────────
+            const phaseDetails = [];
+            for (let i = 1; i <= 5; i++) {
+                const pName  = document.getElementById(`ph-name-${i}`).value.trim();
+                const pStart = document.getElementById(`ph-start-${i}`).value;
+                const pEnd   = document.getElementById(`ph-end-${i}`).value;
+                const pDesc  = document.getElementById(`ph-desc-${i}`).value.trim();
+
+                const hasAny = pName || pStart || pEnd;
+                const hasAll = pName && pStart && pEnd;
+
+                if (hasAny && !hasAll) {
+                    const missing = [];
+                    if (!pName)  missing.push('단계 이름');
+                    if (!pStart) missing.push('시작일');
+                    if (!pEnd)   missing.push('종료일');
+                    alert(`${i}단계: ${missing.join(', ')}을(를) 입력해 주세요.\n(일부만 입력된 단계는 등록할 수 없습니다.)`);
+                    document.getElementById(`ph-name-${i}`).focus(); return;
+                }
+
+                if (hasAll) {
+                    if (pStart > pEnd) {
+                        alert(`${i}단계: 시작일(${pStart})이 종료일(${pEnd})보다 늦습니다.\n날짜를 확인해 주세요.`);
+                        document.getElementById(`ph-start-${i}`).focus(); return;
+                    }
+                    if (phaseDetails.length > 0 && pStart < phaseDetails[phaseDetails.length-1].end) {
+                        alert(`${i}단계 시작일(${pStart})이 이전 단계 종료일(${phaseDetails[phaseDetails.length-1].end})보다 이전입니다.\n단계 일정은 순서대로 입력해 주세요.`);
+                        document.getElementById(`ph-start-${i}`).focus(); return;
+                    }
+                    phaseDetails.push({
+                        name: `${i}단계:${pName}`,
+                        start: pStart,
+                        end: pEnd,
+                        color: `var(--phase-${i})`,
+                        desc: pDesc
+                    });
+                }
+            }
+
+            if (phaseDetails.length === 0) {
+                alert('최소 1개 이상의 단계 일정을 입력해 주세요.\n(단계 이름 + 시작일 + 종료일 모두 필요)');
+                document.getElementById('ph-name-1').focus(); return;
+            }
+
+            // ── 6. 오픈일 vs 마지막 단계 종료일 비교 ─────────
+            const lastPhaseEnd = phaseDetails[phaseDetails.length - 1].end;
+            if (openVal < lastPhaseEnd) {
+                const confirmProceed = confirm(
+                    `[!] 최종 오픈 예정일(${openVal})이\n마지막 단계 종료일(${lastPhaseEnd})보다 이전입니다.\n\n그대로 등록하시겠습니까?`
+                );
+                if (!confirmProceed) { document.getElementById('in-open').focus(); return; }
+            }
+
+            // ── 7. 저장 처리 ────────────────────────────────
+            const projectData = { id: editingProjectId || Date.now(), dept, team, pm, clientDept, name, mm, budget, open: openVal, phaseDetails };
+
+            if (editingProjectId) {
+                const index = projects.findIndex(p => p.id === editingProjectId);
+                projects[index] = projectData;
+            } else {
+                projects.push(projectData);
+            }
+
+            saveToStorage();
+            alert(editingProjectId ? `'${name}' 프로젝트가 수정되었습니다.` : `'${name}' 프로젝트가 등록되었습니다.`);
+            editingProjectId = null;
+            renderDashboard();
+            switchView('dashboard');
+        }
+
+        function getDatePos(dateInput) {
+            const d = new Date(dateInput).getTime();
+            const pos = ((d - YEAR_START) / YEAR_DURATION) * 100;
+            return Math.max(0, Math.min(100, pos));
+        }
+
+        function getStyleSet(dept) {
+            const sets = {
+                '글로벌IT개발부': { main: 'color-global', light: 'color-global-light', hex: '#3b82f6' },
+                '경영정보개발부': { main: 'color-mgmt', light: 'color-mgmt-light', hex: '#10b981' },
+                '수신IT개발부': { main: 'color-deposit', light: 'color-deposit-light', hex: '#6366f1' },
+                '여신IT개발부': { main: 'color-loan', light: 'color-loan-light', hex: '#f97316' }
+            };
+            return sets[dept] || { main: '', light: '', hex: '#64748b' };
+        }
+
+        function formatOpenTag(openStr) {
+            const date = new Date(openStr);
+            const yy = String(date.getFullYear()).slice(-2);
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            return `<div>${yy}/${mm}/${dd}</div><div style="font-size:9px; opacity:0.8;">OPEN</div>`;
+        }
+
+        function openTaskModal(projectName, phaseName, phaseColor, taskDesc, startDate, endDate) {
+            document.getElementById('modalTopBar').style.background = phaseColor;
+            document.getElementById('modalProjectName').innerText = projectName;
+            document.getElementById('modalPhaseTitle').innerText = phaseName;
+            const fmtD = d => { const p = d.split('-'); return `${p[0]}.${p[1]}.${p[2]}`; };
+            document.getElementById('modalPhaseDates').innerText = startDate && endDate ? `${fmtD(startDate)} ~ ${fmtD(endDate)}` : '';
+            const descEl = document.getElementById('modalTaskDesc');
+            if (taskDesc) {
+                descEl.innerText = taskDesc;
+                descEl.style.color = '';
+                descEl.style.fontStyle = '';
+            } else {
+                descEl.innerText = '(등록된 상세 내용이 없습니다)';
+                descEl.style.color = '#94a3b8';
+                descEl.style.fontStyle = 'italic';
+            }
+            document.getElementById('taskModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('taskModal').style.display = 'none'; }
+
+        function setSearch(val) { currentSearch = val.trim(); renderDashboard(); }
+
+        function toggleCompact() {
+            compactView = !compactView;
+            const btn = document.getElementById('btn-compact');
+            if (btn) btn.classList.toggle('active', compactView);
+            const gc = document.getElementById('gantt-rows');
+            if (gc) gc.classList.toggle('gantt-compact', compactView);
+        }
+
+        function onListChkChange() {
+            const all = document.querySelectorAll('.list-row-chk');
+            const checked = document.querySelectorAll('.list-row-chk:checked');
+            const allChk = document.getElementById('list-chk-all');
+            if (allChk) allChk.checked = all.length > 0 && checked.length === all.length;
+            const btn = document.getElementById('btn-delete-selected');
+            if (btn) btn.style.display = checked.length > 0 ? '' : 'none';
+        }
+
+        function toggleAllListChk(checked) {
+            document.querySelectorAll('.list-row-chk').forEach(c => c.checked = checked);
+            onListChkChange();
+        }
+
+        function deleteSelected() {
+            const ids = [...document.querySelectorAll('.list-row-chk:checked')].map(c => parseInt(c.dataset.id));
+            if (!ids.length) return;
+            if (!confirm(`선택한 ${ids.length}건의 프로젝트를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+            projects = projects.filter(p => !ids.includes(p.id));
+            saveToStorage();
+            renderDashboard();
+            showMsg(`${ids.length}건의 프로젝트가 삭제되었습니다.`);
+            const btn = document.getElementById('btn-delete-selected');
+            if (btn) btn.style.display = 'none';
+        }
+        function setView(mode) {
+            currentView = mode;
+            document.getElementById('btn-view-card').classList.toggle('active', mode === 'card');
+            document.getElementById('btn-view-list').classList.toggle('active', mode === 'list');
+            document.getElementById('card-grid').style.display  = mode === 'card' ? '' : 'none';
+            document.getElementById('list-view').style.display  = mode === 'list' ? '' : 'none';
+            const isList = mode === 'list';
+            const delBtn = document.getElementById('btn-delete-selected');
+            const colWrap = document.getElementById('col-panel-wrap');
+            if (!isList) { if (delBtn) delBtn.style.display = 'none'; if (colWrap) colWrap.style.display = 'none'; }
+            else { if (colWrap) colWrap.style.display = ''; }
+            renderDashboard();
+        }
+
+        function renderDashboard() {
+            const q = currentSearch.toLowerCase();
+            const filtered = (currentFilter === '전체' ? projects : projects.filter(p => p.dept === currentFilter))
+                .filter(p => !q || [p.name, p.pm, p.dept, p.team, p.clientDept||''].some(v => v.toLowerCase().includes(q)))
+                .slice().sort((a, b) => new Date(a.open) - new Date(b.open));
+
+            const gc = document.getElementById('gantt-rows');
+            if (gc) gc.classList.toggle('gantt-compact', compactView);
+            const now = new Date();
+            
+            document.getElementById('stat-count').innerText = `${filtered.length.toLocaleString()}건`;
+            document.getElementById('detail-count').innerText = `총 ${filtered.length.toLocaleString()}건`;
+            document.getElementById('stat-budget').innerText = `${Number(filtered.reduce((acc, curr) => acc + curr.budget, 0).toFixed(1)).toLocaleString()}억`;
+            document.getElementById('stat-mm').innerText = `${filtered.reduce((acc, curr) => acc + curr.mm, 0).toLocaleString()} M/M`;
+            document.getElementById('stat-early-open').innerText = `${filtered.filter(p => { const d = new Date(p.open); return d.getFullYear() === CURRENT_YEAR && d.getMonth() < 6; }).length.toLocaleString()}건`;
+
+            const todayPos = now.getFullYear() === CURRENT_YEAR ? getDatePos(now) : null;
+            // 월별 셀 + 주간 눈금 생성
+            let monthHtml = Array.from({length: 12}, (_, i) => {
+                const daysInMonth = new Date(CURRENT_YEAR, i + 1, 0).getDate();
+                // 주간 눈금: 7일 간격으로 tick 위치 계산 (월 내 비율)
+                const ticks = [];
+                for (let d = 7; d < daysInMonth; d += 7) {
+                    const pct = (d / daysInMonth * 100).toFixed(2);
+                    const isMid = Math.abs(d - Math.round(daysInMonth / 2)) <= 3; // 중간 주(2주차)는 약간 진하게
+                    ticks.push(`<div class="week-tick${isMid ? ' mid' : ''}" style="left:${pct}%"></div>`);
+                }
+                const isCurrentMonth = now.getFullYear() === CURRENT_YEAR && now.getMonth() === i;
+                return `<div class="month-cell${isCurrentMonth ? ' current-month-col' : ''}"><span class="month-label">${i+1}월</span><div class="week-ticks">${ticks.join('')}</div></div>`;
+            }).join('');
+            if (todayPos !== null) monthHtml += `<div class="today-line" style="left: ${todayPos}%;"><div class="today-badge">TODAY</div><div class="today-dot"></div></div>`;
+            document.getElementById('month-header').innerHTML = monthHtml;
+
+            const emptyHtml = (msg) => `<div class="empty-state">
+                <div class="empty-state-title">${msg}</div>
+                <div class="empty-state-desc">필터 조건을 변경하거나 검색어를 확인해 주세요.</div>
+                <button class="empty-state-btn" onclick="setFilter('전체');document.getElementById('search-input').value='';setSearch('');">전체 보기로 돌아가기</button>
+            </div>`;
+
+            if (!filtered.length) {
+                const msg = currentSearch ? `'${currentSearch}' 검색 결과가 없습니다` : `${currentFilter} 부서의 프로젝트가 없습니다`;
+                document.getElementById('gantt-rows').innerHTML = emptyHtml(msg);
+                document.getElementById('card-grid').innerHTML = emptyHtml(msg);
+                if (currentView === 'list') document.getElementById('list-view').innerHTML = emptyHtml(msg);
+                return;
+            }
+
+            document.getElementById('gantt-rows').innerHTML = filtered.map(p => {
+                const styles = getStyleSet(p.dept);
+                const endPos = getDatePos(p.open);
+                const bars = p.phaseDetails.map((pd, idx) => {
+                    const startX = getDatePos(pd.start);
+                    const nextPd = p.phaseDetails[idx + 1];
+                    const naturalEnd = getDatePos(pd.end);
+                    const nextStart = nextPd ? getDatePos(nextPd.start) : null;
+                    // 다음 단계 시작점까지 바를 연장하고, chevron 겹침(10px)을 추가해 시각적 빈틈 제거
+                    const endX = (nextStart !== null) ? Math.max(nextStart, naturalEnd) : naturalEnd;
+                    const widthX = endX - startX;
+                    const widthStyle = nextPd ? `calc(${widthX}% + 7px)` : `${widthX}%`;
+                    const safeDesc = pd.desc
+                        .replace(/\\/g, '\\\\')
+                        .replace(/'/g, "\\'")
+                        .replace(/\r?\n/g, '\\n')
+                        .replace(/&/g, '&amp;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    const pdStart = parseDate(pd.start);
+                    const pdEnd   = parseDate(pd.end); pdEnd.setHours(23,59,59);
+                    const phaseState = now > pdEnd ? 'phase-done' : (now >= pdStart ? 'phase-active' : '');
+                    return `<div class="phase-bar ${idx === 0 ? 'first-phase' : ''} ${phaseState}" onclick="openTaskModal('${p.name.replace(/'/g, "\\'")}', '${pd.name}', '${pd.color}', '${safeDesc}', '${pd.start}', '${pd.end}')" style="left: ${startX}%; width: ${widthStyle}; background: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.08) 100%), ${pd.color};">${pd.name.split(':')[1] || pd.name}</div>`;
+                }).join('');
+
+                return `<div class="gantt-row">
+                    <div class="project-info">
+                        <span class="dept-tag ${styles.light}" style="font-size:9px; padding:1px 4px;">${p.dept}</span>
+                        <div class="project-name">${p.name}</div>
+                        <div class="project-meta">
+                            <span class="mm-val">${p.mm.toLocaleString()} M/M</span>
+                            <span class="project-meta-sep">·</span>
+                            <span class="budget-val">₩ ${Number(p.budget.toFixed(1)).toLocaleString()}억</span>
+                            <span class="project-meta-sep">·</span>
+                            <span>PM <span class="pm-val">${p.pm}</span></span>
+                        </div>
+                    </div>
+                    <div class="bar-area">
+                        ${Array.from({length: 12}, (_, mi) => { const isCur = now.getFullYear() === CURRENT_YEAR && now.getMonth() === mi; return `<div class="grid-line${isCur ? ' current-month-bar' : ''}"></div>`; }).join('')}
+                        ${todayPos !== null ? `<div class="past-overlay" style="width: ${todayPos}%;"></div><div class="today-line" style="left: ${todayPos}%;"></div>` : ''}
+                        ${bars}
+                        <div class="milestone" style="left: ${endPos}%;">${formatOpenTag(p.open)}</div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            document.getElementById('card-grid').innerHTML = filtered.map(p => {
+                const styles = getStyleSet(p.dept);
+                const openDate = new Date(p.open);
+                const fmtD = d => { const pt = d.split('-'); return `${pt[0]}.${pt[1]}.${pt[2]}`; };
+
+                /* ── 단계 상태 판별 ── */
+                let activePhase = p.phaseDetails.find(pd => {
+                    const s = parseDate(pd.start); const e = parseDate(pd.end); e.setHours(23,59,59);
+                    return now >= s && now <= e;
+                });
+                // gap 구간이면 다음 단계를 표시용으로 사용
+                let displayPhase = activePhase;
+                let isGap = false;
+                if (!displayPhase && now >= parseDate(p.phaseDetails[0]?.start) && now < openDate) {
+                    displayPhase = p.phaseDetails.find(pd => parseDate(pd.start) > now);
+                    if (displayPhase) isGap = true;
+                }
+
+                /* ── 상태 뱃지 ── */
+                let statusBg, statusFg, statusTxt;
+                if (activePhase) {
+                    statusBg='#fef08a'; statusFg='#854d0e';
+                    statusTxt = (activePhase.name.split(':')[1]||activePhase.name).trim() + ' 진행중';
+                } else if (now < parseDate(p.phaseDetails[0]?.start)) {
+                    statusBg='#f1f5f9'; statusFg='#64748b'; statusTxt='착수 준비중';
+                } else if (now >= openDate) {
+                    statusBg='#d1fae5'; statusFg='#065f46'; statusTxt='개발 완료';
+                } else if (isGap && displayPhase) {
+                    statusBg='#ede9fe'; statusFg='#5b21b6';
+                    statusTxt = (displayPhase.name.split(':')[1]||displayPhase.name).trim() + ' 준비중';
+                } else {
+                    statusBg='#ede9fe'; statusFg='#5b21b6'; statusTxt='오픈 준비중';
+                }
+
+                /* ── D-Day 계산 ── */
+                const openD = new Date(p.open);
+                const diffDays = Math.round((openD - now) / 86400000);
+                let ddayText, ddayColor, ddayBg;
+                if (diffDays > 0) {
+                    ddayText = `D-${diffDays}`;
+                    ddayColor = diffDays <= 30 ? '#dc2626' : diffDays <= 90 ? '#d97706' : '#475569';
+                    ddayBg    = diffDays <= 30 ? '#fff1f2' : diffDays <= 90 ? '#fff7ed' : '#f1f5f9';
+                } else if (diffDays === 0) {
+                    ddayText = 'D-Day'; ddayColor = '#dc2626'; ddayBg = '#fee2e2';
+                } else {
+                    ddayText = `D+${Math.abs(diffDays)}`; ddayColor = '#94a3b8'; ddayBg = '#f1f5f9';
+                }
+
+                /* ── 현재/다음 단계 행 ── */
+                const shownPhase = displayPhase;
+                const shownDesc = shownPhase
+                    ? shownPhase.desc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\r?\n/g,'<br>') : '';
+                const shownLabel = isGap ? '예정' : '단계';
+
+                const phaseSection = shownPhase ? `
+                    <hr class="card-divider">
+                    <div class="card-phase-row">
+                        <span class="card-phase-name">${(shownPhase.name.split(':')[1]||shownPhase.name).trim()}</span><span style="font-size:0.62rem;color:#94a3b8;font-weight:600;margin:0 5px 0 0;">${shownLabel}</span>
+                        <span class="card-phase-date">${fmtD(shownPhase.start)} ~ ${fmtD(shownPhase.end)}</span>
+                    </div>
+                    ${shownDesc ? `<div class="card-phase-desc" style="margin-top:4px;">${shownDesc}</div>` : ''}` : '';
+
+                /* ── 총 개발기간 계산 ── */
+                let totalMonthsStr = '-';
+                let _earliest = null, _latest = null;
+                if (p.phaseDetails && p.phaseDetails.length > 0) {
+                    const starts = p.phaseDetails.map(pd => parseDate(pd.start)).filter(d => !isNaN(d));
+                    const ends   = p.phaseDetails.map(pd => parseDate(pd.end)).filter(d => !isNaN(d));
+                    if (starts.length && ends.length) {
+                        _earliest = new Date(Math.min(...starts));
+                        const phaseLatest = new Date(Math.max(...ends));
+                        const openDate = new Date(p.open);
+                        _latest = openDate > phaseLatest ? openDate : phaseLatest;
+                        const months = (_latest.getFullYear() - _earliest.getFullYear()) * 12 + (_latest.getMonth() - _earliest.getMonth()) + 1;
+                        totalMonthsStr = `${months}개월`;
+                    }
+                }
+                const periodLine = (() => {
+                    if (!_earliest || !_latest) return '';
+                    return `<div style="margin-top:3px;font-size:0.68rem;color:#94a3b8;font-weight:500;display:flex;align-items:center;gap:5px;flex-wrap:wrap;"><span style="font-size:0.6rem;font-weight:700;background:#e2e8f0;color:#64748b;padding:1px 5px;border-radius:3px;white-space:nowrap;">총 개발기간</span>${fmtD(_earliest.toISOString().slice(0,10))} ~ ${fmtD(_latest.toISOString().slice(0,10))}<span style="font-size:0.6rem;font-weight:700;background:#dbeafe;color:#1d4ed8;padding:1px 6px;border-radius:3px;white-space:nowrap;">${totalMonthsStr}</span></div>`;
+                })();
+
+                /* ── 담당 정보 ── */
+                const clientRow = p.clientDept
+                    ? `<span class="card-meta-item"><span class="card-meta-label" style="background:#e2e8f0;color:#475569;">수요부서</span><span class="card-meta-value">${p.clientDept}</span></span>` : '';
+
+                return `<div class="project-card" style="border-left-color:${styles.hex}" ondblclick="editProject(${p.id})">
+
+                    <!-- ① 헤더: 부서 + D-Day + 상태 -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                        <span class="dept-tag ${styles.light}">${p.dept}</span>
+                        <div style="display:flex;align-items:center;gap:4px;">
+                            <span class="dday-badge" style="background:${ddayBg};color:${ddayColor};">${ddayText}</span>
+                            <span class="status-tag" style="background:${statusBg};color:${statusFg};">${statusTxt}</span>
+                        </div>
+                    </div>
+
+                    <!-- ② 프로젝트명 -->
+                    <div style="font-weight:900;font-size:0.95rem;color:#0f172a;line-height:1.3;">${p.name}</div>
+                    ${periodLine}
+
+                    <!-- ③ 현재 단계 (활성 시만 표시) -->
+                    ${phaseSection}
+
+                    <!-- ④ 담당 정보 -->
+                    <hr class="card-divider">
+                    <div class="card-meta-row">
+                        <span class="card-meta-item">
+                            <span class="card-meta-label" style="background:#e2e8f0;color:#475569;">팀</span>
+                            <span class="card-meta-value">${p.team}</span>
+                        </span>
+                        <span class="card-meta-item">
+                            <span class="card-meta-label" style="background:#e2e8f0;color:#475569;">PM</span>
+                            <span class="card-meta-value">${p.pm}</span>
+                        </span>
+                        ${clientRow}
+                    </div>
+
+                    <!-- ⑤ 핵심 지표: 오픈일 · M/M · 예산 -->
+                    <div class="card-footer-metrics" style="margin-top:7px;grid-template-columns:repeat(3,1fr);">
+                        <div class="card-metric open">
+                            <div class="card-metric-label">오픈일</div>
+                            <div class="card-metric-value">${fmtD(p.open)}</div>
+                        </div>
+                        <div class="card-metric">
+                            <div class="card-metric-label">투입 M/M</div>
+                            <div class="card-metric-value">${p.mm.toLocaleString()}<span class="card-metric-unit"> M/M</span></div>
+                        </div>
+                        <div class="card-metric budget">
+                            <div class="card-metric-label">투입 예산</div>
+                            <div class="card-metric-value">₩ ${Number(p.budget.toFixed(1)).toLocaleString()}<span class="card-metric-unit">억</span></div>
+                        </div>
+                    </div>
+
+
+                </div>`;
+            }).join('');
+
+            // 목록뷰 렌더
+            if (currentView === 'list') renderListView(filtered, now);
+
+            // 폰트 크기 자동 조절 (레이아웃 완료 후 실행)
+            setTimeout(autoFitBarFonts, 80);
+        }
+
+        /* ── 목록뷰 렌더 ── */
+        function renderListView(filtered, now) {
+            const fmtD = d => { const p = d.split('-'); return `${p[0]}.${p[1]}.${p[2]}`; };
+            if (!filtered.length) {
+                document.getElementById('list-view').innerHTML = '<div class="list-no-data">조회된 프로젝트가 없습니다. 검색어 또는 필터 조건을 확인해 주세요.</div>';
+                return;
+            }
+
+            // 정렬 적용
+            let sorted = filtered.slice();
+            if (listSortCol) {
+                const col = LIST_COLS.find(c => c.key === listSortCol);
+                if (col?.sortFn) sorted.sort((a,b) => listSortDir * col.sortFn(a, b));
+            }
+
+            const rows = sorted.map((p, idx) => {
+                // D-Day
+                const openD = new Date(p.open);
+                const diff = Math.round((openD - now) / 86400000);
+                let ddayTxt, ddayC, ddayB;
+                if (diff > 0)      { ddayTxt=`D-${diff}`; ddayC=diff<=30?'#7f1d1d':diff<=90?'#991b1b':'#b91c1c'; ddayB=diff<=30?'#fecaca':diff<=90?'#fee2e2':'#fef2f2'; }
+                else if (diff===0) { ddayTxt='D-Day'; ddayC='#7f1d1d'; ddayB='#fca5a5'; }
+                else               { ddayTxt=`D+${Math.abs(diff)}`; ddayC='#94a3b8'; ddayB='#f1f5f9'; }
+
+                // 오픈일 색상
+                let openC, openB;
+                if (diff < 0)       { openC='#94a3b8'; openB='#f1f5f9'; }
+                else if (diff <= 30) { openC='#c2410c'; openB='#fff7ed'; }
+                else                 { openC='#3730a3'; openB='#eef2ff'; }
+
+                // 총 개발기간
+                let durStr = '-', periodStart = '-', periodEnd = '-';
+                if (p.phaseDetails?.length) {
+                    const ss = p.phaseDetails.map(d=>new Date(d.start)).filter(d=>!isNaN(d));
+                    const ee = p.phaseDetails.map(d=>new Date(d.end)).filter(d=>!isNaN(d));
+                    if (ss.length && ee.length) {
+                        const e0=new Date(Math.min(...ss));
+                        const phaseEnd=new Date(Math.max(...ee));
+                        const openDate=new Date(p.open);
+                        const e1 = openDate > phaseEnd ? openDate : phaseEnd;
+                        periodStart = fmtD(e0.toISOString().slice(0,10));
+                        periodEnd   = fmtD(e1.toISOString().slice(0,10));
+                        const mo=(e1.getFullYear()-e0.getFullYear())*12+(e1.getMonth()-e0.getMonth())+1;
+                        durStr = `${mo}개월`;
+                    }
+                }
+
+                // 현재 단계
+                let curPhase = '-';
+                const ap = p.phaseDetails?.find(pd => { const s=parseDate(pd.start),e=parseDate(pd.end); e.setHours(23,59,59); return now>=s&&now<=e; });
+                if (ap) {
+                    curPhase = (ap.name.split(':')[1]||ap.name).trim();
+                } else if (p.phaseDetails?.length) {
+                    const fst = parseDate(p.phaseDetails[0]?.start);
+                    const openDt = new Date(p.open); openDt.setHours(23,59,59);
+                    if (now < fst) curPhase = '착수 준비중';
+                    else if (now > openDt) curPhase = '개발 완료';
+                    else {
+                        const next = p.phaseDetails.find(pd => parseDate(pd.start) > now);
+                        curPhase = next ? (next.name.split(':')[1]||next.name).trim() + ' 준비중' : '오픈 준비중';
+                    }
+                }
+
+                // 컬럼 가시성에 따라 td 생성
+                const v = listColVisible;
+                const td = (key, html) => v[key] ? `<td>${html}</td>` : '';
+                return `<tr ondblclick="editProject(${p.id})" title="더블클릭하여 수정">
+                    <td style="text-align:center;"><input type="checkbox" class="list-row-chk" data-id="${p.id}" onchange="onListChkChange()" style="cursor:pointer;width:14px;height:14px;accent-color:#ef4444;"></td>
+                    ${td('no',`<span style="color:#94a3b8;font-size:0.68rem;">${idx+1}</span>`)}
+                    ${td('name',`<span class="list-td-name">${p.name}</span>`)}
+                    ${td('dept',p.dept)}
+                    ${td('team',`<span style="background:#f1f5f9;color:#475569;padding:1px 6px;border-radius:4px;font-size:0.68rem;font-weight:700;">${p.team}</span>`)}
+                    ${td('pm',p.pm)}
+                    ${td('client',p.clientDept||'')}
+                    ${td('period',`<span style="color:#334155;">${periodStart} ~ ${periodEnd}</span>`)}
+                    ${td('duration',`<span style="color:#4f46e5;font-weight:700;">${durStr}</span>`)}
+                    ${td('dday',`<span class="dday-badge" style="background:${ddayB};color:${ddayC};">${ddayTxt}</span>`)}
+                    ${td('open',`<span class="dday-badge" style="background:${openB};color:${openC};">${fmtD(p.open)}</span>`)}
+                    ${td('phase',`<span style="font-weight:700;color:#92400e;">${curPhase}</span>`)}
+                    ${td('mm',`${p.mm.toLocaleString()} M/M`)}
+                    ${td('budget',`<span style="color:#d97706;font-weight:700;">₩ ${Number(p.budget.toFixed(1)).toLocaleString()}억</span>`)}
+                </tr>`;
+            }).join('');
+
+            // 헤더 생성
+            const sortClass = key => {
+                if (listSortCol !== key) return '';
+                return listSortDir === 1 ? ' asc' : ' desc';
+            };
+            const th = (key, label, sortable=true) => {
+                if (!listColVisible[key]) return '';
+                const col = LIST_COLS.find(c=>c.key===key);
+                const canSort = sortable && col?.sortFn;
+                return canSort
+                    ? `<th class="list-th-sort${sortClass(key)}" onclick="sortListBy('${key}')">${label}</th>`
+                    : `<th>${label}</th>`;
+            };
+
+            document.getElementById('list-view').innerHTML = `
+                <table class="list-table">
+                    <thead><tr>
+                        <th style="width:32px;"><input type="checkbox" id="list-chk-all" onchange="toggleAllListChk(this.checked)" style="cursor:pointer;width:14px;height:14px;accent-color:#ef4444;"></th>
+                        ${th('no','No',false)}
+                        ${th('name','사업명')}
+                        ${th('dept','부서명')}
+                        ${th('team','팀명')}
+                        ${th('pm','PM')}
+                        ${th('client','수요부서')}
+                        ${th('period','개발기간(시작~종료)',false)}
+                        ${th('duration','총개발기간',false)}
+                        ${th('dday','D-Day')}
+                        ${th('open','오픈일')}
+                        ${th('phase','현재단계',false)}
+                        ${th('mm','M/M')}
+                        ${th('budget','예산(억)')}
+                    </tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>`;
+        }
+
+        function sortListBy(key) {
+            if (listSortCol === key) listSortDir *= -1;
+            else { listSortCol = key; listSortDir = 1; }
+            renderDashboard();
+        }
+
+        function toggleColPanel() {
+            const panel = document.getElementById('col-panel');
+            const wrap  = document.getElementById('col-panel-wrap');
+            if (panel.classList.contains('open')) {
+                panel.classList.remove('open');
+                return;
+            }
+            // 체크박스 목록 생성 (No 제외)
+            panel.innerHTML = LIST_COLS.filter(c=>c.key!=='no').map(c=>`
+                <label>
+                    <input type="checkbox" ${listColVisible[c.key]?'checked':''} onchange="toggleListCol('${c.key}',this.checked)">
+                    ${c.label}
+                </label>`).join('');
+            panel.classList.add('open');
+            // 외부 클릭 시 닫기
+            setTimeout(()=>{
+                const close = e=>{ if(!wrap.contains(e.target)){ panel.classList.remove('open'); document.removeEventListener('click',close); }};
+                document.addEventListener('click', close);
+            }, 0);
+        }
+
+        function toggleListCol(key, visible) {
+            listColVisible[key] = visible;
+            renderDashboard();
+        }
+
+        /* ── 엑셀 내보내기 (SpreadsheetML) ── */
+        function exportExcel() {
+            if (!projects.length) { showMsg('내보낼 프로젝트가 없습니다.'); return; }
+            const now = new Date();
+            const esc = v => String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const cell = v => `<Cell><Data ss:Type="String">${esc(v)}</Data></Cell>`;
+            const hdr  = ['#','사업명','부서','팀','PM','수요부서','개발시작','개발종료','총개발기간','D-Day','오픈일','현재단계','M/M','예산(억)'];
+
+            const dataRows = projects.slice().sort((a,b)=>new Date(a.open)-new Date(b.open)).map((p,i)=>{
+                const openD=new Date(p.open), diff=Math.round((openD-now)/86400000);
+                const ddayTxt = diff>0?`D-${diff}`:diff===0?'D-Day':`D+${Math.abs(diff)}`;
+                let durStr='-', fs='-', le='-', curPhase='-', pct=0;
+                if (p.phaseDetails?.length) {
+                    const ss=p.phaseDetails.map(d=>new Date(d.start)).filter(d=>!isNaN(d));
+                    const ee=p.phaseDetails.map(d=>new Date(d.end)).filter(d=>!isNaN(d));
+                    if (ss.length&&ee.length) {
+                        const e0=new Date(Math.min(...ss));
+                        const phaseEnd=new Date(Math.max(...ee));
+                        const openDate=new Date(p.open);
+                        const e1=openDate>phaseEnd?openDate:phaseEnd;
+                        fs=e0.toISOString().slice(0,10); le=e1.toISOString().slice(0,10);
+                        const mo=(e1.getFullYear()-e0.getFullYear())*12+(e1.getMonth()-e0.getMonth())+1;
+                        durStr=`${mo}개월`;
+                    }
+                    const ap=p.phaseDetails.find(pd=>{const s=parseDate(pd.start),e=parseDate(pd.end);e.setHours(23,59,59);return now>=s&&now<=e;});
+                    if (ap) {
+                        curPhase=(ap.name.split(':')[1]||ap.name).trim();
+                        const ps=new Date(ap.start),pe=new Date(ap.end);
+                        pct=Math.min(100,Math.max(0,Math.round((now-ps)/(pe-ps)*100)));
+                    } else {
+                        const firstStart=parseDate(p.phaseDetails[0]?.start);
+                        const lastEnd=new Date(p.phaseDetails[p.phaseDetails.length-1]?.end);
+                        lastEnd.setHours(23,59,59);
+                        const openDate=new Date(p.open); openDate.setHours(23,59,59);
+                        if (now < firstStart) curPhase='착수 준비중';
+                        else if (now > openDate) curPhase='개발 완료';
+                        else if (now > lastEnd) curPhase='오픈 준비중';
+                        else {
+                            const next=p.phaseDetails.find(pd=>parseDate(pd.start)>now);
+                            curPhase=next?(next.name.split(':')[1]||next.name).trim()+' 준비중':'오픈 준비중';
+                        }
+                    }
+                }
+                return `<Row>${[i+1,p.name,p.dept,p.team,p.pm,p.clientDept||'',fs,le,durStr,ddayTxt,p.open,curPhase,p.mm,p.budget].map(cell).join('')}</Row>`;
+            }).join('');
+
+            const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="SI프로젝트현황"><Table><Row>${hdr.map(cell).join('')}</Row>${dataRows}</Table></Worksheet></Workbook>`;
+            const dateStr=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+            const blob=new Blob(['﻿'+xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+            const url=URL.createObjectURL(blob);
+            const a=document.createElement('a'); a.href=url; a.download=`SI프로젝트현황_${dateStr}.xls`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        }
+
+        function autoFitBarFonts() {
+            document.querySelectorAll('.phase-bar').forEach(bar => {
+                const w = bar.offsetWidth;
+                if (w <= 0) return;                          // 레이아웃 미완성이면 스킵
+                if (w < 30) bar.style.fontSize = '0.5rem';  // 최소 폰트 보장
+                else if (w < 55) bar.style.fontSize = '0.6rem';
+                else if (w < 85) bar.style.fontSize = '0.72rem';
+                else bar.style.fontSize = '';                // CSS 기본값 복원
+            });
+        }
+
+        // ── 일괄 등록 그리드 ────────────────────────────
+        const BULK_MAX = 20;
+        let bulkGridInited = false;
+        let bulkRidSeq = 0;   // 행 고유 ID 시퀀스
+        let bulkRids  = [];   // 현재 활성 행 ID 목록
+
+        const DEPT_OPTIONS = ['수신IT개발부','여신IT개발부','글로벌IT개발부','경영정보개발부']
+            .map(d => `<option value="${d}">${d.replace('개발부','')}</option>`).join('');
+
+        function makeBulkRow(rid) {
+            const tr = document.createElement('tr');
+            tr.id = `bulk-tr-${rid}`;
+            const phaseCols = [1,2,3,4,5].map(p =>
+                `<td><input type="text" id="bg-p${p}n-${rid}" placeholder="${PH_NAMES[p-1]}" maxlength="30"></td>
+                 <td><input type="date" id="bg-p${p}s-${rid}" min="2000-01-01" max="2099-12-31"></td>
+                 <td><input type="date" id="bg-p${p}e-${rid}" min="2000-01-01" max="2099-12-31"></td>
+                 <td><input type="text" id="bg-p${p}d-${rid}" placeholder="설명" maxlength="100"></td>`
+            ).join('');
+            tr.innerHTML = `
+                <td class="row-chk"><input type="checkbox" class="bulk-chk" data-rid="${rid}" onchange="onBulkChkChange(this)"></td>
+                <td class="row-num" id="bulk-rnum-${rid}"></td>
+                <td><input type="text" id="bg-name-${rid}" placeholder="사업명" maxlength="60"></td>
+                <td><select id="bg-dept-${rid}"><option value="">부서</option>${DEPT_OPTIONS}</select></td>
+                <td><input type="text" id="bg-team-${rid}" placeholder="팀" maxlength="30"></td>
+                <td><input type="text" id="bg-pm-${rid}" placeholder="PM" maxlength="20"></td>
+                <td><input type="text" id="bg-client-${rid}" placeholder="수요부서" maxlength="40"></td>
+                <td><input type="text" id="bg-mm-${rid}" placeholder="M/M" inputmode="numeric" oninput="fmtComma(this,false)"></td>
+                <td><input type="text" id="bg-budget-${rid}" placeholder="예산" inputmode="decimal" oninput="fmtComma(this,true)"></td>
+                <td><input type="date" id="bg-open-${rid}" min="2000-01-01" max="2099-12-31"></td>
+                ${phaseCols}`;
+            return tr;
+        }
+
+        function updateBulkMeta() {
+            bulkRids.forEach((rid, idx) => {
+                const el = document.getElementById(`bulk-rnum-${rid}`);
+                if (el) el.textContent = idx + 1;
+            });
+            const el = document.getElementById('bulk-row-count');
+            if (el) el.textContent = `${bulkRids.length} / ${BULK_MAX}`;
+        }
+
+        function initBulkGrid() {
+            if (bulkGridInited) return;
+            bulkGridInited = true;
+            bulkRidSeq = 0; bulkRids = [];
+            const tbody = document.getElementById('bulk-tbody');
+            tbody.innerHTML = '';
+        }
+
+        function addBulkRow() {
+            if (bulkRids.length >= BULK_MAX) { showMsg(`최대 ${BULK_MAX}건까지 추가 가능합니다.`); return; }
+            bulkRidSeq++;
+            const rid = bulkRidSeq;
+            document.getElementById('bulk-tbody').appendChild(makeBulkRow(rid));
+            bulkRids.push(rid);
+            updateBulkMeta();
+        }
+
+        function deleteBulkRows() {
+            const checked = [...document.querySelectorAll('.bulk-chk:checked')];
+            if (!checked.length) { showMsg('삭제할 행을 체크해 주세요.'); return; }
+            checked.forEach(chk => {
+                const rid = parseInt(chk.dataset.rid);
+                const tr = document.getElementById(`bulk-tr-${rid}`);
+                if (tr) tr.remove();
+                bulkRids = bulkRids.filter(r => r !== rid);
+            });
+            const allChk = document.getElementById('bulk-chk-all');
+            if (allChk) allChk.checked = false;
+            updateBulkMeta();
+        }
+
+        function onBulkChkChange(chk) {
+            const rid = parseInt(chk.dataset.rid);
+            const tr = document.getElementById(`bulk-tr-${rid}`);
+            if (tr) tr.classList.toggle('row-checked', chk.checked);
+            // 전체 체크박스 상태 동기화
+            const all = [...document.querySelectorAll('.bulk-chk')];
+            const allChk = document.getElementById('bulk-chk-all');
+            if (allChk) allChk.checked = all.length > 0 && all.every(c => c.checked);
+        }
+
+        function toggleAllBulkChk(checked) {
+            document.querySelectorAll('.bulk-chk').forEach(chk => {
+                chk.checked = checked;
+                onBulkChkChange(chk);
+            });
+        }
+
+        function clearBulkGrid() {
+            if (!confirm('일괄 입력 내용을 모두 초기화하시겠습니까?\n(모든 행이 삭제됩니다)')) return;
+            bulkRids = []; bulkRidSeq = 0;
+            document.getElementById('bulk-tbody').innerHTML = '';
+            const allChk = document.getElementById('bulk-chk-all');
+            if (allChk) allChk.checked = false;
+            updateBulkMeta();
+        }
+
+        function saveBulk() {
+            if (bulkRids.length === 0) { showMsg('등록할 데이터가 없습니다. 행을 추가해 주세요.'); return; }
+            const checkedRids = [...document.querySelectorAll('.bulk-chk:checked')].map(el => parseInt(el.dataset.rid));
+            if (checkedRids.length === 0) { showMsg('등록할 행을 체크해 주세요.'); return; }
+            let saved = 0, errors = [];
+            for (const r of checkedRids) {
+                const rowNum = bulkRids.indexOf(r) + 1;
+                const name = (document.getElementById(`bg-name-${r}`)?.value || '').trim();
+                if (!name) { errors.push(`${rowNum}행: 사업명이 입력되지 않았습니다.`); continue; }
+                const dept = document.getElementById(`bg-dept-${r}`)?.value || '';
+                const team = (document.getElementById(`bg-team-${r}`)?.value || '').trim();
+                const pm   = (document.getElementById(`bg-pm-${r}`)?.value || '').trim();
+                const client = (document.getElementById(`bg-client-${r}`)?.value || '').trim();
+                const mmRaw = rawNum(document.getElementById(`bg-mm-${r}`)?.value || '');
+                const budgetRaw = rawNum(document.getElementById(`bg-budget-${r}`)?.value || '');
+                const openVal = document.getElementById(`bg-open-${r}`)?.value || '';
+                if (!dept)    { errors.push(`${rowNum}행 [${name}]: 부서를 선택해 주세요.`); continue; }
+                if (!team)    { errors.push(`${rowNum}행 [${name}]: 담당팀이 입력되지 않았습니다.`); continue; }
+                if (!pm)      { errors.push(`${rowNum}행 [${name}]: PM이 입력되지 않았습니다.`); continue; }
+                if (!mmRaw)   { errors.push(`${rowNum}행 [${name}]: M/M이 입력되지 않았습니다.`); continue; }
+                if (!openVal) { errors.push(`${rowNum}행 [${name}]: 최종 오픈일이 입력되지 않았습니다.`); continue; }
+                const mm = parseInt(mmRaw, 10);
+                const budget = budgetRaw ? parseFloat(budgetRaw) : 0;
+                const phaseDetails = [];
+                for (let p = 1; p <= 5; p++) {
+                    const pn = (document.getElementById(`bg-p${p}n-${r}`)?.value || '').trim();
+                    const ps = document.getElementById(`bg-p${p}s-${r}`)?.value || '';
+                    const pe = document.getElementById(`bg-p${p}e-${r}`)?.value || '';
+                    const pd = (document.getElementById(`bg-p${p}d-${r}`)?.value || '').trim();
+                    if (pn && ps && pe) {
+                        const colors = ['var(--phase-1)','var(--phase-2)','var(--phase-3)','var(--phase-4)','var(--phase-5)'];
+                        phaseDetails.push({ name: `${p}단계:${pn}`, start: ps, end: pe, color: colors[p-1], desc: pd });
+                    }
+                }
+                if (phaseDetails.length === 0) { errors.push(`${rowNum}행 [${name}]: 단계 정보가 없습니다. (단계명·시작일·종료일 모두 필요)`); continue; }
+                const isDup = projects.some(pr => pr.name === name);
+                if (isDup) { errors.push(`${rowNum}행 [${name}]: 동일한 프로젝트명이 이미 등록되어 있습니다.`); continue; }
+                projects.push({ id: Date.now() + r, dept, team, pm, clientDept: client, name, mm, budget, open: openVal, phaseDetails });
+                saved++;
+            }
+            if (saved > 0) { saveToStorage(); renderDashboard(); }
+            if (errors.length > 0) {
+                alert(`⚠️ 등록 실패 항목 (${errors.length}건)\n\n${errors.join('\n')}`);
+            } else {
+                showMsg(saved > 0 ? `${saved}건 등록 완료` : '등록 가능한 행이 없습니다.');
+            }
+            if (saved > 0 && errors.length > 0) showMsg(`${saved}건 등록 완료 (${errors.length}건 오류)`);
+        }
+
+        function downloadBulkTemplate() {
+            const bom = '﻿';
+            const header = '사업명,부서,담당팀,담당PM,수요부서,M/M,예산(억),최종오픈일,1단계,1시작,1종료,1설명,2단계,2시작,2종료,2설명,3단계,3시작,3종료,3설명,4단계,4시작,4종료,4설명,5단계,5시작,5종료,5설명';
+            const sample = '테스트사업,여신IT개발부,여신심사팀,홍길동,개인여신부,120,18,2026-12-31,분석/설계,2026-01-01,2026-03-31,요건정의 및 설계,개발,2026-04-01,2026-09-30,시스템 개발,단위테스트,2026-10-01,2026-10-31,단위 테스트,,,,,,,,';
+            const csv = bom + header + '\n' + sample + '\n';
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'si_project_bulk_template.csv';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+
+        function importBulkCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // 그리드 완전 초기화 (플래그 우회)
+                bulkRids = []; bulkRidSeq = 0;
+                document.getElementById('bulk-tbody').innerHTML = '';
+                const lines = e.target.result.replace(/\r/g, '').split('\n').filter(l => l.trim());
+                const startRow = lines[0].includes('사업명') ? 1 : 0;
+                let count = 0;
+                for (let i = startRow; i < lines.length; i++) {
+                    const cols = parseCSVLine(lines[i]);
+                    if (!cols[0] || !cols[0].trim()) continue;
+                    if (bulkRids.length >= BULK_MAX) break;
+                    addBulkRow();
+                    const rid = bulkRids[bulkRids.length - 1];
+
+                    const set     = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+                    const setDate = (id, v) => { const el = document.getElementById(id); if (el) el.value = normalizeDate(v || ''); };
+                    set(`bg-name-${rid}`, cols[0]); set(`bg-dept-${rid}`, cols[1]);
+                    set(`bg-team-${rid}`, cols[2]); set(`bg-pm-${rid}`, cols[3]);
+                    set(`bg-client-${rid}`, cols[4]); set(`bg-mm-${rid}`, cols[5]);
+                    set(`bg-budget-${rid}`, cols[6]); setDate(`bg-open-${rid}`, cols[7]);
+                    for (let p = 0; p < 5; p++) {
+                        const base = 8 + p * 4;
+                        set(`bg-p${p+1}n-${rid}`, cols[base]); setDate(`bg-p${p+1}s-${rid}`, cols[base+1]);
+                        setDate(`bg-p${p+1}e-${rid}`, cols[base+2]); set(`bg-p${p+1}d-${rid}`, cols[base+3]);
+                    }
+                    count++;
+                }
+                showMsg(`${count}행 가져오기 완료`);
+            };
+            reader.readAsText(file, 'UTF-8');
+            event.target.value = '';
+        }
+
+        function parseCSVLine(line) {
+            const result = []; let cur = '', inQ = false;
+            for (const c of line) {
+                if (c === '"') inQ = !inQ;
+                else if (c === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+                else cur += c;
+            }
+            result.push(cur.trim());
+            return result;
+        }
+
+        /* CSV 날짜 포맷 정규화: input[type=date]는 YYYY-MM-DD 만 허용 */
+        function normalizeDate(str) {
+            if (!str) return '';
+            str = str.trim().replace(/\s/g, '');
+            // YYYY-MM-DD 또는 YYYY-M-D
+            let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+            if (m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+            // YYYY/MM/DD 또는 YYYY/M/D
+            m = str.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+            if (m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+            // YYYY.MM.DD 또는 YYYY.M.D
+            m = str.match(/^(\d{4})\.(\d{1,2})\.(\d{1,2})$/);
+            if (m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+            // MM/DD/YYYY (Excel 미국식)
+            m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+            if (m) return `${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+            // DD-MM-YYYY
+            m = str.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+            if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+            return str; // 그 외 원본 반환
+        }
+
+        function showMsg(text) {
+            const el = document.getElementById('msgBox');
+            if (!el) return;
+            el.innerText = text; el.style.display = 'block';
+            clearTimeout(el._t);
+            el._t = setTimeout(() => { el.style.display = 'none'; }, 3000);
+        }
+
+        function setFilter(dept) { currentFilter = dept; document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === dept)); renderDashboard(); }
+
+        // ── 마지막 저장 시각 표시 ──────────────────────────
+        function updateSavedInfo() {
+            const el = document.getElementById('io-last-saved');
+            if (!el) return;
+            const raw = localStorage.getItem(LS_KEY);
+            if (!raw) { el.innerText = '- 저장 데이터 없음'; return; }
+            try {
+                const meta = localStorage.getItem(LS_KEY + '_meta');
+                if (meta) {
+                    const { savedAt, count } = JSON.parse(meta);
+                    const d = new Date(savedAt);
+                    const fmt = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                    el.innerText = `- ${count}건 · 마지막 저장: ${fmt}`;
+                } else {
+                    const parsed = JSON.parse(raw);
+                    el.innerText = `- ${parsed.length}건 저장됨`;
+                }
+            } catch(e) { el.innerText = '- 저장 데이터 있음'; }
+        }
+
+        // ── 내보내기 ──────────────────────────────────────
+        function exportProjects() {
+            if (projects.length === 0) { alert('내보낼 프로젝트가 없습니다.'); return; }
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+            const payload = {
+                exportedAt: now.toISOString(),
+                exportedBy: 'SI Dashboard 2026',
+                version: '1.0',
+                count: projects.length,
+                projects: projects
+            };
+            const json = JSON.stringify(payload, null, 2);
+            const blob = new Blob(['﻿' + json], { type: 'application/json;charset=utf-8' }); // BOM 포함 → 윈도우 메모장 한글 깨짐 방지
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `si_projects_${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert(`[완료] ${projects.length}개 프로젝트를 'si_projects_${dateStr}.json'으로 내보냈습니다.`);
+        }
+
+        // ── 가져오기 공통 처리 (isMerge: false=덮어쓰기, true=병합) ──
+        function handleImportFile(e, isMerge) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (!file.name.endsWith('.json')) {
+                alert('JSON 파일(.json)만 가져올 수 있습니다.');
+                e.target.value = ''; return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                try {
+                    // BOM 제거 후 파싱
+                    const text = ev.target.result.replace(/^﻿/, '');
+                    const raw = JSON.parse(text);
+
+                    // 배열 직접 또는 {projects:[]} 형식 모두 허용
+                    const incoming = Array.isArray(raw) ? raw : (Array.isArray(raw.projects) ? raw.projects : null);
+                    if (!incoming) {
+                        alert('[오류] 올바른 형식의 파일이 아닙니다.\n내보내기로 생성된 JSON 파일을 사용해 주세요.');
+                        e.target.value = ''; return;
+                    }
+
+                    // 필수 필드 검증
+                    const invalid = incoming.filter(p => !p.name || !p.dept || !Array.isArray(p.phaseDetails) || p.phaseDetails.length === 0);
+                    if (invalid.length > 0) {
+                        alert(`[오류] ${invalid.length}개 항목의 데이터가 손상되었습니다.\n(필수: 프로젝트명, 부서, 단계 정보)\n\n손상 항목: ${invalid.map(p => p.name || '(이름없음)').join(', ')}`);
+                        e.target.value = ''; return;
+                    }
+
+                    if (isMerge) {
+                        // 병합: 기존 프로젝트명 기준으로 중복 제외
+                        const existingNames = new Set(projects.map(p => p.name));
+                        const toAdd = incoming.filter(p => !existingNames.has(p.name));
+                        const skipped = incoming.length - toAdd.length;
+                        if (toAdd.length === 0) {
+                            alert(`[-] 가져올 신규 프로젝트가 없습니다.\n(${skipped}개 모두 이미 존재하는 프로젝트명)`);
+                            e.target.value = ''; return;
+                        }
+                        const msg = `[병합 가져오기]\n\n신규 추가: ${toAdd.length}개\n중복 제외: ${skipped}개${skipped > 0 ? '\n  -> ' + incoming.filter(p => existingNames.has(p.name)).map(p => p.name).join(', ') : ''}\n\n계속하시겠습니까?`;
+                        if (!confirm(msg)) { e.target.value = ''; return; }
+                        // ID 충돌 방지: 신규 ID 재발급
+                        toAdd.forEach(p => { p.id = Date.now() + Math.random(); });
+                        projects = [...projects, ...toAdd];
+                    } else {
+                        // 덮어쓰기
+                        const exportedAt = raw.exportedAt ? new Date(raw.exportedAt).toLocaleString('ko-KR') : '알 수 없음';
+                        const msg = `[가져오기 - 덮어쓰기]\n\n파일 내 프로젝트: ${incoming.length}개\n내보낸 시각: ${exportedAt}\n\n[!] 현재 데이터(${projects.length}개)가 모두 교체됩니다.\n계속하시겠습니까?`;
+                        if (!confirm(msg)) { e.target.value = ''; return; }
+                        projects = incoming;
+                    }
+
+                    saveToStorage();
+                    currentFilter = '전체';
+                    renderDashboard();
+                    alert(`[완료] ${isMerge ? '병합' : '가져오기'} 완료!\n현재 프로젝트: ${projects.length}개`);
+                } catch(err) {
+                    alert('[오류] 파일을 읽는 중 오류가 발생했습니다.\n올바른 JSON 파일인지 확인해 주세요.\n\n오류: ' + err.message);
+                }
+                e.target.value = ''; // 동일 파일 재선택 가능하도록 초기화
+            };
+            reader.readAsText(file, 'utf-8');
+        }
+
+        function resetAllData() {
+            if (!confirm('[!] 저장된 모든 프로젝트 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.')) return;
+            localStorage.removeItem(LS_KEY);
+            localStorage.removeItem(LS_KEY + '_meta');
+            projects = [];
+            currentFilter = '전체';
+            renderDashboard();
+            switchView('dashboard');
+            showMsg('모든 데이터가 삭제되었습니다.');
+        }
+
+        window.onload = () => {
+            // 연도 동적 적용 (헤더 텍스트 + 페이지 타이틀 + footer)
+            document.getElementById('header-sub-tag').innerText = `Tech Development HQ Roadmap ${CURRENT_YEAR}`;
+            document.getElementById('header-title').innerText   = `${CURRENT_YEAR} 테크개발본부 SI 프로젝트 현황`;
+            document.title = `${CURRENT_YEAR} 테크개발본부 SI 프로젝트 현황`;
+            const fyEl = document.getElementById('footer-year');
+            if (fyEl) fyEl.innerText = `© ${CURRENT_YEAR}`;
+
+            const fContainer = document.getElementById('filter-container');
+            const deptBtnClass = { '글로벌IT개발부': 'filter-btn-global', '경영정보개발부': 'filter-btn-mgmt', '수신IT개발부': 'filter-btn-deposit', '여신IT개발부': 'filter-btn-loan' };
+            fContainer.innerHTML = depts.map(dept => `<button class="filter-btn ${deptBtnClass[dept] || ''} ${currentFilter === dept ? 'active' : ''}" onclick="setFilter('${dept}')">${dept}</button>`).join('');
+
+            setInterval(updateLiveClock, 1000);
+            updateLiveClock();
+
+            renderDashboard();
+            updateSavedInfo();
+
+            // 날짜 입력 change 시 wrapper 동기화 (전역)
+            document.addEventListener('input', function(e) {
+                if (e.target.type !== 'date') return;
+                const val = e.target.value;
+                if (!val) return;
+                const firstDash = val.indexOf('-');
+                if (firstDash > 4) {
+                    e.target.value = val.slice(0, 4) + val.slice(firstDash);
+                }
+            });
+            document.addEventListener('change', function(e) {
+                if (e.target.type === 'date') {
+                    var wrap = e.target.parentElement;
+                    if (wrap && wrap.classList.contains('date-wrap')) {
+                        wrap.classList.toggle('ph-show', !e.target.value);
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
