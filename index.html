@@ -1532,10 +1532,10 @@
             .stat-card .label { font-size: 0.52rem !important; margin-bottom: 1px !important; }
             .stat-card .value { font-size: 0.9rem !important; }
 
-            /* 간트 차트 — 세로 A4 맞춤 + 밀도 극대화 */
+            /* 간트 차트 — A4/태블릿 공통 맞춤 */
             .gantt-container { page-break-after: auto; page-break-inside: auto; box-shadow: none !important; border: 1px solid #e2e8f0 !important; border-radius: 8px !important; overflow: visible !important; margin-bottom: 8px; }
-            .gantt-scroll { overflow: visible !important; padding: 8px 0 0 !important; }
-            .gantt-content { zoom: 0.42; min-width: 0 !important; }
+            .gantt-scroll { overflow: hidden !important; padding: 8px 0 0 !important; }
+            .gantt-content { transform: scale(0.42); transform-origin: top left; width: calc(100% / 0.42); min-width: 0 !important; }
             .gantt-row { padding: 1px 0 !important; }
             .gantt-header { border-radius: 8px 8px 0 0 !important; }
 
@@ -3465,28 +3465,41 @@
             document.getElementById('print-report-sub-text').textContent =
                 document.getElementById('header-sub-tag')?.textContent || '';
 
-            // 목록뷰 데이터 렌더링 보장 (카드뷰 상태여도 list-view innerHTML 채우기)
             if (prevView !== 'list') setView('list');
-
-            // 다크모드면 라이트로 전환 후 인쇄, 복원
             if (wasDark) document.documentElement.setAttribute('data-theme', 'light');
 
-            // 간트 transform 높이 보정 (Safari/iPad 대응)
-            const SCALE = 0.42;
+            // 모바일 포함 전 디바이스에서 데스크톱 뷰포트 강제 적용
+            // (모바일 Chrome은 디바이스 뷰포트 폭으로 인쇄 렌더링하므로 1280px로 고정)
+            const viewportMeta = document.querySelector('meta[name="viewport"]');
+            const origViewport = viewportMeta ? viewportMeta.content : null;
+            if (viewportMeta) viewportMeta.content = 'width=1280, initial-scale=1.0';
+
             const gc = document.querySelector('.gantt-content');
             const gs = document.querySelector('.gantt-scroll');
-            if (gc && gs) {
-                gs.style.height = (gc.scrollHeight * SCALE) + 'px';
-                gs.style.overflow = 'hidden';
-            }
 
-            setTimeout(() => {
-                window.print();
-                // 복원
+            let restored = false;
+            function restore() {
+                if (restored) return;
+                restored = true;
+                if (viewportMeta && origViewport) viewportMeta.content = origViewport;
                 if (gc && gs) { gs.style.height = ''; gs.style.overflow = ''; }
                 if (wasDark) document.documentElement.setAttribute('data-theme', 'dark');
                 if (prevView !== 'list') setView(prevView);
-            }, 200);
+            }
+
+            // 뷰포트 변경 후 리렌더링 대기 → 높이 측정 → 인쇄
+            setTimeout(() => {
+                const SCALE = 0.42;
+                const PRINT_PADDING_TOP = 8;
+                if (gc && gs) {
+                    gs.style.height = (gc.scrollHeight * SCALE + PRINT_PADDING_TOP) + 'px';
+                    gs.style.overflow = 'hidden';
+                }
+                window.addEventListener('afterprint', restore, { once: true });
+                window.print();
+                // afterprint 미지원 환경(iOS Chrome 등) 대비 fallback
+                setTimeout(restore, 2000);
+            }, 500);
         }
 
         function toggleTheme() {
