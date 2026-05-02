@@ -1539,6 +1539,13 @@
             .gantt-row { padding: 1px 0 !important; }
             .gantt-header { border-radius: 8px 8px 0 0 !important; }
 
+            /* clip-path + background-color 미렌더 버그 대응 (모바일 Chromium 인쇄) */
+            .phase-bar, .phase-bar.first-phase, .phase-bar.phase-continues, .phase-bar.first-phase.phase-continues {
+                clip-path: none !important;
+                border-radius: 3px !important;
+                padding: 0 8px !important;
+            }
+
             /* 인쇄 시 목록뷰 강제 표시, 카드뷰 숨김 */
             #list-view { display: block !important; }
             #card-grid { display: none !important; }
@@ -2356,15 +2363,14 @@
             switchView('dashboard');
         }
 
-        // CSS 변수(var(--xxx))를 실제 hex 값으로 변환 — 인라인 스타일에서 var()가 해석 안 되는 환경(모바일 PDF 등) 대응
-        const _cssVarCache = {};
+        // CSS 변수(var(--xxx))를 실제 값으로 변환 — 인라인 스타일에서 var()가 해석 안 되는 환경(모바일 PDF 등) 대응
+        // 캐시 없음: 다크/라이트 테마 전환 시 변수 값이 달라지므로 매번 getComputedStyle로 최신값을 읽음
         function resolveColor(color) {
             if (!color || !color.startsWith('var(')) return color;
-            if (_cssVarCache[color]) return _cssVarCache[color];
             const varName = color.match(/var\(\s*(--[^)]+)\s*\)/)?.[1];
-            const resolved = varName ? getComputedStyle(document.documentElement).getPropertyValue(varName).trim() : color;
-            _cssVarCache[color] = resolved || color;
-            return _cssVarCache[color];
+            if (!varName) return color;
+            const resolved = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+            return resolved || color;
         }
 
         function getDatePos(dateInput) {
@@ -3520,6 +3526,8 @@
             localStorage.setItem('si-theme', next);
             const lbl = document.getElementById('theme-toggle-label');
             if (lbl) lbl.innerText = next === 'dark' ? '라이트모드' : '다크모드';
+            // 막대 인라인 색상이 CSS 변수값이므로 테마 전환 시 재렌더링 필요
+            renderDashboard();
         }
 
         (function() {
