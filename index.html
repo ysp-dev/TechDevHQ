@@ -3483,7 +3483,11 @@
                 document.getElementById('header-sub-tag')?.textContent || '';
 
             if (prevView !== 'list') setView('list');
-            if (wasDark) document.documentElement.setAttribute('data-theme', 'light');
+            // 다크모드면 라이트로 전환 후 막대 인라인 색상 재렌더링
+            if (wasDark) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                renderDashboard();
+            }
 
             // 모바일 포함 전 디바이스에서 데스크톱 뷰포트 강제 적용
             // (모바일 Chrome은 디바이스 뷰포트 폭으로 인쇄 렌더링하므로 1280px로 고정)
@@ -3500,7 +3504,10 @@
                 restored = true;
                 if (viewportMeta && origViewport) viewportMeta.content = origViewport;
                 if (gc && gs) { gs.style.height = ''; gs.style.overflow = ''; }
-                if (wasDark) document.documentElement.setAttribute('data-theme', 'dark');
+                if (wasDark) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    renderDashboard(); // 다크모드 색상으로 막대 복원
+                }
                 if (prevView !== 'list') setView(prevView);
             }
 
