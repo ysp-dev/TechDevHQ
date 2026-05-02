@@ -2356,6 +2356,17 @@
             switchView('dashboard');
         }
 
+        // CSS 변수(var(--xxx))를 실제 hex 값으로 변환 — 인라인 스타일에서 var()가 해석 안 되는 환경(모바일 PDF 등) 대응
+        const _cssVarCache = {};
+        function resolveColor(color) {
+            if (!color || !color.startsWith('var(')) return color;
+            if (_cssVarCache[color]) return _cssVarCache[color];
+            const varName = color.match(/var\(\s*(--[^)]+)\s*\)/)?.[1];
+            const resolved = varName ? getComputedStyle(document.documentElement).getPropertyValue(varName).trim() : color;
+            _cssVarCache[color] = resolved || color;
+            return _cssVarCache[color];
+        }
+
         function getDatePos(dateInput) {
             const d = new Date(dateInput);
             const month = d.getMonth();
@@ -2562,7 +2573,7 @@
                     const pdEnd   = new Date(pdEndDate); pdEnd.setHours(23,59,59);
                     const phaseState = now > pdEnd ? 'phase-done' : (now >= pdStart ? 'phase-active' : '');
                     const continuesCls = endsNextYear ? ' phase-continues' : '';
-                    return `<div class="phase-bar ${idx === 0 ? 'first-phase' : ''} ${phaseState}${continuesCls}" onclick="openTaskModal('${p.name.replace(/'/g, "\\'")}', '${pd.name}', '${pd.color}', '${safeDesc}', '${pd.start}', '${pd.end}')" style="left: ${startX}%; width: ${widthStyle}; background-color: ${pd.color}; background-image: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.08) 100%);">${pd.name.split(':')[1] || pd.name}</div>`;
+                    return `<div class="phase-bar ${idx === 0 ? 'first-phase' : ''} ${phaseState}${continuesCls}" onclick="openTaskModal('${p.name.replace(/'/g, "\\'")}', '${pd.name}', '${pd.color}', '${safeDesc}', '${pd.start}', '${pd.end}')" style="left: ${startX}%; width: ${widthStyle}; background-color: ${resolveColor(pd.color)}; background-image: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.08) 100%);">${pd.name.split(':')[1] || pd.name}</div>`;
                 }).join('');
 
                 return `<div class="gantt-row" data-dept="${p.dept}">
