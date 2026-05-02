@@ -210,25 +210,27 @@
             margin-bottom: 18px;
         }
         .stat-card {
-            background: var(--white);
+            background: rgba(255,255,255,0.82);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
             padding: 7px 12px 7px 14px;
             border-radius: var(--r-md);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.7);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
             border-left: 4px solid #e2e8f0;
             position: relative;
         }
         /* Bento: sc-total — 좌측 2행 차지, 강조 카드 */
         .stat-card.sc-total {
             grid-column: 1; grid-row: 1 / 3;
-            background: linear-gradient(145deg, #f1f5f9 0%, #e8edf5 100%);
-            border: 1px solid #d1d9e6; border-left: 4px solid #64748b;
+            background: linear-gradient(145deg, #2d3f55 0%, #1e2e42 100%);
+            border: none; border-left: 4px solid #475569;
             padding: 16px 20px;
             display: flex; flex-direction: column; justify-content: flex-end;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            box-shadow: 0 4px 16px rgba(15,23,42,0.25);
         }
-        .stat-card.sc-total .label { color: #64748b; font-size: 0.65rem; font-weight: 600; margin-bottom: 4px; }
-        .stat-card.sc-total .value { color: #0f172a; font-size: 2.2rem; font-weight: 900; letter-spacing: -0.04em; }
+        .stat-card.sc-total .label { color: rgba(255,255,255,0.45); font-size: 0.65rem; font-weight: 600; margin-bottom: 4px; }
+        .stat-card.sc-total .value { color: #f1f5f9; font-size: 2.2rem; font-weight: 900; letter-spacing: -0.04em; }
         /* Bento: 나머지 카드 배치 */
         .stat-card.sc-budget { grid-column: 2; grid-row: 1; border-left-color: var(--gold); }
         .stat-card.sc-early  { grid-column: 3; grid-row: 1; border-left-color: var(--emerald); }
@@ -237,10 +239,12 @@
         .stat-card .value { font-size: 1.35rem; font-weight: 900; letter-spacing: -0.03em; }
 
         .gantt-container {
-            background: var(--white);
+            background: rgba(255,255,255,0.80);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
             border-radius: 20px;
-            border: none;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+            border: 1px solid rgba(255,255,255,0.65);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9);
             overflow: hidden;
             margin-bottom: 20px;
             transition: box-shadow 0.2s;
@@ -336,12 +340,17 @@
             z-index: 51;
         }
         .today-badge {
-            position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
-            background: #ef4444; color: white;
-            font-size: 9px; font-weight: 900; letter-spacing: 0.9px;
-            padding: 2px 9px; border-radius: 4px;
+            position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
+            background: rgba(220,38,38,0.88);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            font-size: 9px; font-weight: 800; letter-spacing: 1.2px;
+            padding: 3px 10px; border-radius: 5px;
             white-space: nowrap;
-            box-shadow: 0 3px 10px rgba(239,68,68,0.4);
+            border: 1px solid rgba(255,255,255,0.30);
+            box-shadow: 0 2px 10px rgba(239,68,68,0.45), 0 0 0 1px rgba(239,68,68,0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.25);
         }
         .today-badge::after {
             content: ''; position: absolute;
@@ -349,7 +358,7 @@
             width: 0; height: 0;
             border-left: 4px solid transparent;
             border-right: 4px solid transparent;
-            border-top: 4px solid #ef4444;
+            border-top: 4px solid rgba(220,38,38,0.88);
         }
         @keyframes today-pulse {
             0%   { box-shadow: 0 0 0 0 rgba(239,68,68,0.75), 0 0 0 1.5px #ef4444; }
@@ -724,13 +733,14 @@
 
         .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
         .project-card {
-            background: white; border-radius: var(--r-lg); border: none;
+            background: rgba(255,255,255,0.78); border-radius: var(--r-lg); border: 1px solid rgba(255,255,255,0.65);
+            -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
             padding: 14px 16px 12px; border-left: 4px solid #cbd5e1;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9);
             transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease; cursor: pointer; display: flex; flex-direction: column; gap: 0;
             user-select: none;
         }
-        .project-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.09), 0 2px 4px rgba(0,0,0,0.04); }
+        .project-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9); border-color: rgba(255,255,255,0.85); }
 
         /* ── 카드 공통 행 구분선 ── */
         .card-divider { border: none; border-top: 1px dashed #e9ecf0; margin: 6px 0; }
@@ -795,10 +805,12 @@
             animation: modalOverlayIn 0.18s ease both;
         }
         .modal-content {
-            background: white; border-radius: var(--r-lg); width: 90%; max-width: 480px;
+            background: rgba(255,255,255,0.88); border-radius: var(--r-lg); width: 90%; max-width: 480px;
+            -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.7);
             position: relative; overflow: hidden;
             animation: modalContentIn 0.22s cubic-bezier(0.34,1.4,0.64,1) both;
-            box-shadow: 0 24px 48px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
         }
         .modal-top-bar { height: 6px; width: 100%; }
         .modal-body { padding: 22px 24px 26px; }
@@ -1252,9 +1264,8 @@
         [data-theme="dark"] body {
             background: #080d1a;
             background-image:
-                radial-gradient(ellipse 65% 50% at 12% 8%,  rgba(99,102,241,0.18) 0%, transparent 60%),
-                radial-gradient(ellipse 55% 40% at 88% 18%, rgba(16,185,129,0.10) 0%, transparent 55%),
-                radial-gradient(ellipse 45% 55% at 50% 92%, rgba(249,115,22,0.09) 0%, transparent 50%);
+                radial-gradient(ellipse 55% 45% at 0% 0%,   rgba(139,92,246,0.13) 0%, transparent 65%),
+                radial-gradient(ellipse 45% 40% at 100% 100%, rgba(249,115,22,0.10) 0%, transparent 60%);
             background-attachment: fixed;
             color: var(--text-main);
         }
