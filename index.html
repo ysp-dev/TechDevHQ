@@ -1524,9 +1524,9 @@
             .stat-card .value { font-size: 0.9rem !important; }
 
             /* 간트 차트 — 세로 A4 맞춤 + 밀도 극대화 */
-            .gantt-container { page-break-after: avoid; box-shadow: none !important; border: 1px solid #e2e8f0 !important; border-radius: 8px !important; overflow: visible !important; margin-bottom: 8px; }
-            .gantt-scroll { overflow: visible !important; padding: 2px 4px; }
-            .gantt-content { zoom: 0.42; min-width: 0 !important; transform-origin: top left; }
+            .gantt-container { page-break-after: avoid; box-shadow: none !important; border: 1px solid #e2e8f0 !important; border-radius: 8px !important; overflow: hidden !important; margin-bottom: 8px; }
+            .gantt-scroll { overflow: hidden !important; padding: 26px 0 0 !important; }
+            .gantt-content { transform: scale(0.42); transform-origin: top left; width: calc(100% / 0.42); min-width: 0 !important; }
             .gantt-row { padding: 1px 0 !important; }
             .gantt-header { border-radius: 8px 8px 0 0 !important; }
 
@@ -3452,8 +3452,19 @@
             // 다크모드면 라이트로 전환 후 인쇄, 복원
             if (wasDark) document.documentElement.setAttribute('data-theme', 'light');
 
+            // 간트 transform 높이 보정 (Safari/iPad 대응)
+            const SCALE = 0.42;
+            const gc = document.querySelector('.gantt-content');
+            const gs = document.querySelector('.gantt-scroll');
+            if (gc && gs) {
+                gs.style.height = (gc.scrollHeight * SCALE) + 'px';
+                gs.style.overflow = 'hidden';
+            }
+
             setTimeout(() => {
                 window.print();
+                // 복원
+                if (gc && gs) { gs.style.height = ''; gs.style.overflow = ''; }
                 if (wasDark) document.documentElement.setAttribute('data-theme', 'dark');
                 if (prevView !== 'list') setView(prevView);
             }, 200);
