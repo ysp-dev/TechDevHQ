@@ -293,6 +293,13 @@
         }
         .phase-bar.phase-active {
         }
+        /* 내년까지 이어지는 단계 — 오른쪽 직선 컷 */
+        .phase-bar.phase-continues {
+            clip-path: polygon(100% 0%, 100% 100%, 0% 100%, 10px 50%, 0% 0%) !important;
+        }
+        .phase-bar.first-phase.phase-continues {
+            clip-path: polygon(100% 0%, 100% 100%, 0% 100%, 0% 0%) !important;
+        }
 
         .today-line {
             position: absolute; top: 0; bottom: 0; width: 1px;
@@ -391,7 +398,7 @@
         .flag-pole {
             position: absolute; left: 0; top: 50%;
             width: 2px; height: 22px;
-            transform: translateY(-50%) rotate(15deg);
+            transform: translateY(-50%);
             transform-origin: center bottom;
             filter: drop-shadow(2px 3px 5px rgba(220,38,38,0.5));
         }
@@ -1382,6 +1389,8 @@
         [data-theme="dark"] .modal-proj-label { color: #64748b; }
         [data-theme="dark"] .modal-phase-title { color: #e2e8f0; }
         [data-theme="dark"] .modal-date-row { background: #263348; border-color: #334155; }
+        [data-theme="dark"] .modal-date-key { color: #94a3b8; }
+        [data-theme="dark"] .modal-date-val { color: #e2e8f0; }
         [data-theme="dark"] .modal-desc-text { color: #94a3b8; }
         [data-theme="dark"] .modal-close { background: #334155; color: #94a3b8; }
         [data-theme="dark"] .modal-close:hover { background: #475569; color: #e2e8f0; }
@@ -1524,9 +1533,9 @@
             .stat-card .value { font-size: 0.9rem !important; }
 
             /* 간트 차트 — 세로 A4 맞춤 + 밀도 극대화 */
-            .gantt-container { page-break-after: avoid; box-shadow: none !important; border: 1px solid #e2e8f0 !important; border-radius: 8px !important; overflow: hidden !important; margin-bottom: 8px; }
-            .gantt-scroll { overflow: hidden !important; padding: 26px 0 0 !important; }
-            .gantt-content { transform: scale(0.42); transform-origin: top left; width: calc(100% / 0.42); min-width: 0 !important; }
+            .gantt-container { page-break-after: auto; page-break-inside: auto; box-shadow: none !important; border: 1px solid #e2e8f0 !important; border-radius: 8px !important; overflow: visible !important; margin-bottom: 8px; }
+            .gantt-scroll { overflow: visible !important; padding: 8px 0 0 !important; }
+            .gantt-content { zoom: 0.42; min-width: 0 !important; }
             .gantt-row { padding: 1px 0 !important; }
             .gantt-header { border-radius: 8px 8px 0 0 !important; }
 
@@ -2523,16 +2532,24 @@
 
             document.getElementById('gantt-rows').innerHTML = filtered.map(p => {
                 const styles = getStyleSet(p.dept);
-                const endPos = getDatePos(p.open);
+                // 오픈일이 올해 이후 연도이면 차트 끝(100%)에 깃발 표시
+                const openDateObj = parseDate(p.open);
+                const isFutureOpen = openDateObj.getFullYear() > CURRENT_YEAR;
+                const endPos = isFutureOpen ? 100 : getDatePos(p.open);
                 const bars = p.phaseDetails.map((pd, idx) => {
+                    const pdStartDate = parseDate(pd.start);
+                    const pdEndDate   = parseDate(pd.end);
+                    // 단계 시작일이 올해보다 미래이면 차트에 표시 안 함
+                    if (pdStartDate.getFullYear() > CURRENT_YEAR) return '';
                     const startX = getDatePos(pd.start);
                     const nextPd = p.phaseDetails[idx + 1];
                     const naturalEnd = getDatePos(pd.end);
-                    const nextStart = nextPd ? getDatePos(nextPd.start) : null;
-                    // 다음 단계 시작점까지 바를 연장하고, chevron 겹침(10px)을 추가해 시각적 빈틈 제거
-                    const endX = (nextStart !== null) ? Math.max(nextStart, naturalEnd) : naturalEnd;
+                    // 단계 종료일이 올해를 넘어가면 차트 끝에서 자름
+                    const endsNextYear = pdEndDate.getFullYear() > CURRENT_YEAR;
+                    const nextStart = (nextPd && parseDate(nextPd.start).getFullYear() <= CURRENT_YEAR) ? getDatePos(nextPd.start) : null;
+                    const endX = endsNextYear ? 100 : ((nextStart !== null) ? Math.max(nextStart, naturalEnd) : naturalEnd);
                     const widthX = endX - startX;
-                    const widthStyle = nextPd ? `calc(${widthX}% + 7px)` : `${widthX}%`;
+                    const widthStyle = (nextPd && !endsNextYear && nextStart !== null) ? `calc(${widthX}% + 7px)` : `${widthX}%`;
                     const safeDesc = pd.desc
                         .replace(/\\/g, '\\\\')
                         .replace(/'/g, "\\'")
@@ -2541,10 +2558,11 @@
                         .replace(/"/g, '&quot;')
                         .replace(/</g, '&lt;')
                         .replace(/>/g, '&gt;');
-                    const pdStart = parseDate(pd.start);
-                    const pdEnd   = parseDate(pd.end); pdEnd.setHours(23,59,59);
+                    const pdStart = pdStartDate;
+                    const pdEnd   = new Date(pdEndDate); pdEnd.setHours(23,59,59);
                     const phaseState = now > pdEnd ? 'phase-done' : (now >= pdStart ? 'phase-active' : '');
-                    return `<div class="phase-bar ${idx === 0 ? 'first-phase' : ''} ${phaseState}" onclick="openTaskModal('${p.name.replace(/'/g, "\\'")}', '${pd.name}', '${pd.color}', '${safeDesc}', '${pd.start}', '${pd.end}')" style="left: ${startX}%; width: ${widthStyle}; background: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.08) 100%), ${pd.color};">${pd.name.split(':')[1] || pd.name}</div>`;
+                    const continuesCls = endsNextYear ? ' phase-continues' : '';
+                    return `<div class="phase-bar ${idx === 0 ? 'first-phase' : ''} ${phaseState}${continuesCls}" onclick="openTaskModal('${p.name.replace(/'/g, "\\'")}', '${pd.name}', '${pd.color}', '${safeDesc}', '${pd.start}', '${pd.end}')" style="left: ${startX}%; width: ${widthStyle}; background: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.08) 100%), ${pd.color};">${pd.name.split(':')[1] || pd.name}</div>`;
                 }).join('');
 
                 return `<div class="gantt-row" data-dept="${p.dept}">
@@ -2563,7 +2581,7 @@
                         ${Array.from({length: 12}, (_, mi) => { const isCur = now.getFullYear() === CURRENT_YEAR && now.getMonth() === mi; return `<div class="grid-line${isCur ? ' current-month-bar' : ''}"></div>`; }).join('')}
                         ${todayPos !== null ? `<div class="past-overlay" style="width: ${todayPos}%;"></div><div class="today-line" style="left: ${todayPos}%;"></div>` : ''}
                         ${bars}
-                        <div class="milestone" style="left:${endPos}%;"><span class="flag-pole"></span>${formatOpenTag(p.open)}</div>
+                        <div class="milestone" style="left:${isFutureOpen ? 'calc(100% + 8px)' : endPos + '%'};"><span class="flag-pole"></span>${formatOpenTag(p.open)}</div>
                     </div>
                 </div>`;
             }).join('');
@@ -3094,6 +3112,7 @@
             a.href = URL.createObjectURL(blob);
             a.download = 'si_project_bulk_template.csv';
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            alert('템플릿 파일 내보내기 완료했습니다. 다운로드 폴더에서 확인하세요.');
         }
 
         function importBulkCSV(event) {
@@ -3257,7 +3276,7 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            alert(`[완료] ${projects.length}개 프로젝트를 'si_projects_${dateStr}.json'으로 내보냈습니다.`);
+            alert(`[완료] ${projects.length}개 프로젝트를 'si_projects_${dateStr}.json'으로 내보냈습니다.\n다운로드 폴더에서 확인하세요.`);
         }
 
         // ── 가져오기 공통 처리 (isMerge: false=덮어쓰기, true=병합) ──
