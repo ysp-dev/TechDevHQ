@@ -2562,7 +2562,7 @@
                     const pdEnd   = new Date(pdEndDate); pdEnd.setHours(23,59,59);
                     const phaseState = now > pdEnd ? 'phase-done' : (now >= pdStart ? 'phase-active' : '');
                     const continuesCls = endsNextYear ? ' phase-continues' : '';
-                    return `<div class="phase-bar ${idx === 0 ? 'first-phase' : ''} ${phaseState}${continuesCls}" onclick="openTaskModal('${p.name.replace(/'/g, "\\'")}', '${pd.name}', '${pd.color}', '${safeDesc}', '${pd.start}', '${pd.end}')" style="left: ${startX}%; width: ${widthStyle}; background: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.08) 100%), ${pd.color};">${pd.name.split(':')[1] || pd.name}</div>`;
+                    return `<div class="phase-bar ${idx === 0 ? 'first-phase' : ''} ${phaseState}${continuesCls}" onclick="openTaskModal('${p.name.replace(/'/g, "\\'")}', '${pd.name}', '${pd.color}', '${safeDesc}', '${pd.start}', '${pd.end}')" style="left: ${startX}%; width: ${widthStyle}; background-color: ${pd.color}; background-image: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.08) 100%);">${pd.name.split(':')[1] || pd.name}</div>`;
                 }).join('');
 
                 return `<div class="gantt-row" data-dept="${p.dept}">
