@@ -123,9 +123,6 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
         }
         @media (min-width: 768px) {
             header { flex-direction: row; align-items: center; justify-content: space-between; }
@@ -290,8 +287,6 @@
         .phase-bar.phase-done {
             filter: saturate(0.35) brightness(0.88);
             opacity: 0.65;
-        }
-        .phase-bar.phase-active {
         }
         /* 내년까지 이어지는 단계 — 오른쪽 직선 컷 */
         .phase-bar.phase-continues {
@@ -514,13 +509,7 @@
             box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
         }
         .phase-block-body textarea { resize: vertical; min-height: 52px; }
-        /* 구) phase-input-row 호환 */
-        .phase-input-row {
-            display: grid; grid-template-columns: 130px 160px 160px 1fr; gap: 8px; margin-bottom: 6px;
-            background: #f8fafc; padding: 8px 10px; border-radius: var(--r-md);
-        }
-
-        /* ── 버튼 그룹 (미사용 레거시 제거됨) ── */
+        /* ── 일괄 등록 ── */
 
         /* ── 일괄 등록 ── */
         .bulk-toolbar { display:flex; gap:5px; align-items:center; flex-wrap:wrap; margin-bottom:10px; padding:10px 14px; background:white; border:none; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04); }
@@ -767,10 +756,6 @@
         .card-metric.open .card-metric-value { color: #1e293b; font-size: 0.75rem; }
         .card-metric.budget .card-metric-value { color: #1e293b; }
 
-        /* 구) 스타일 호환용 (삭제 안전) */
-        .card-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 2px; overflow: hidden; line-height: 1.35; color: #1e293b; }
-        .status-desc { font-size: 0.77rem; color: #71717a; line-height: 1.4; font-weight: 500; }
-
         @keyframes modalOverlayIn { from { opacity:0; } to { opacity:1; } }
         @keyframes modalContentIn { from { opacity:0; transform:scale(0.94) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
         .modal-overlay {
@@ -818,9 +803,6 @@
             border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 10px;
         }
         .modal-desc-text { font-size: 0.88rem; line-height: 1.7; color: #334155; white-space: pre-wrap; }
-        /* 구) 호환용 */
-        .modal-header { display:none; }
-        .modal-phase-badge { display:none; }
 
         #msgBox {
             position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: var(--r-md);
@@ -1007,11 +989,6 @@
         /* ── Windows 전용 호환성 스타일 ──────────────────── */
 
         /* 윈도우 스크롤바 커스텀 (Chrome/Edge) */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
         /* 날짜 입력 달력 아이콘 커서 */
         input[type="date"] {
             font-size: 0.8rem;
@@ -1065,7 +1042,6 @@
             border-radius: 20px;
             padding: 16px 20px;
             margin-bottom: 16px;
-            border-bottom: none;
             box-shadow: 0 2px 16px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
         }
 
@@ -1157,7 +1133,7 @@
         }
 
         /* 기본 */
-        [data-theme="dark"] body { background: var(--bg-color); color: var(--text-main); }
+        [data-theme="dark"] body { background: var(--bg-color); background-image: none; color: var(--text-main); }
         [data-theme="dark"] header { background: transparent; }
 
         /* 헤더 / 네비 */
@@ -1523,7 +1499,7 @@
             .print-report-badge { display: inline-block; background: #f97316; color: white; font-size: 0.5rem; font-weight: 800; padding: 1px 5px; border-radius: 3px; letter-spacing: 0.05em; margin-bottom: 2px; }
 
             /* 레이아웃 */
-            body { background: white !important; margin: 0; padding: 0; }
+            body { background: white !important; background-image: none !important; margin: 0; padding: 0; }
             #dashboardView { max-width: none !important; }
 
             /* 통계 카드 — 2열 소형 */
@@ -1888,6 +1864,57 @@
             if (!str) return null;
             const [y, m, d] = str.split('-').map(Number);
             return new Date(y, m - 1, d);
+        }
+
+        // 날짜 문자열 'YYYY-MM-DD' → 'YYYY.MM.DD' 포맷
+        function fmtD(str) {
+            if (!str) return '';
+            const p = str.split('-');
+            return `${p[0]}.${p[1]}.${p[2]}`;
+        }
+
+        // D-Day 계산 → { text, cls }
+        function calcDDay(openStr, now) {
+            const diff = Math.round((new Date(openStr) - now) / 86400000);
+            if (diff > 0)      return { text: `D-${diff}`,           cls: diff <= 7 ? 'dday-urgent' : diff <= 30 ? 'dday-warn' : 'dday-normal' };
+            if (diff === 0)    return { text: 'D-Day',               cls: 'dday-today' };
+            return             { text: `D+${Math.abs(diff)}`,        cls: 'dday-past' };
+        }
+
+        // 현재 단계 문자열 계산
+        function calcCurPhase(p, now) {
+            if (!p.phaseDetails?.length) return '-';
+            const ap = p.phaseDetails.find(pd => {
+                const s = parseDate(pd.start), e = parseDate(pd.end);
+                e.setHours(23, 59, 59);
+                return now >= s && now <= e;
+            });
+            if (ap) return (ap.name.split(':')[1] || ap.name).trim();
+            const fst = parseDate(p.phaseDetails[0].start);
+            const openDt = new Date(p.open); openDt.setHours(23, 59, 59);
+            if (now < fst) return '착수 준비중';
+            if (now > openDt) return '개발 완료';
+            const next = p.phaseDetails.find(pd => parseDate(pd.start) > now);
+            return next ? (next.name.split(':')[1] || next.name).trim() + ' 준비중' : '오픈 준비중';
+        }
+
+        // 총 개발기간 계산 → { periodStart, periodEnd, durStr }
+        function calcDuration(p) {
+            const empty = { periodStart: '-', periodEnd: '-', durStr: '-' };
+            if (!p.phaseDetails?.length) return empty;
+            const ss = p.phaseDetails.map(d => new Date(d.start)).filter(d => !isNaN(d));
+            const ee = p.phaseDetails.map(d => new Date(d.end)).filter(d => !isNaN(d));
+            if (!ss.length || !ee.length) return empty;
+            const e0 = new Date(Math.min(...ss));
+            const phaseEnd = new Date(Math.max(...ee));
+            const openDate = new Date(p.open);
+            const e1 = openDate > phaseEnd ? openDate : phaseEnd;
+            const mo = (e1.getFullYear() - e0.getFullYear()) * 12 + (e1.getMonth() - e0.getMonth()) + 1;
+            return {
+                periodStart: fmtD(e0.toISOString().slice(0, 10)),
+                periodEnd:   fmtD(e1.toISOString().slice(0, 10)),
+                durStr:      `${mo}개월`
+            };
         }
 
         // ── 기본 샘플 데이터 ─────────────────────────────────
@@ -2296,7 +2323,7 @@
                 document.getElementById('in-name').focus(); return;
             }
 
-            // ── 5. 단계별 일정 수집 및 부분 입력 체크 ────────
+            // ── 6. 단계별 일정 수집 및 부분 입력 체크 ────────
             const phaseDetails = [];
             for (let i = 1; i <= 5; i++) {
                 const pName  = document.getElementById(`ph-name-${i}`).value.trim();
@@ -2340,7 +2367,7 @@
                 document.getElementById('ph-name-1').focus(); return;
             }
 
-            // ── 6. 오픈일 vs 마지막 단계 종료일 비교 ─────────
+            // ── 7. 오픈일 vs 마지막 단계 종료일 비교 ─────────
             const lastPhaseEnd = phaseDetails[phaseDetails.length - 1].end;
             if (openVal < lastPhaseEnd) {
                 const confirmProceed = confirm(
@@ -2349,7 +2376,7 @@
                 if (!confirmProceed) { document.getElementById('in-open').focus(); return; }
             }
 
-            // ── 7. 저장 처리 ────────────────────────────────
+            // ── 8. 저장 처리 ────────────────────────────────
             const projectData = { id: editingProjectId || Date.now(), dept, team, pm, clientDept, name, mm, budget, open: openVal, phaseDetails };
 
             if (editingProjectId) {
@@ -2377,7 +2404,7 @@
         }
 
         function getDatePos(dateInput) {
-            const d = new Date(dateInput);
+            const d = typeof dateInput === 'string' ? parseDate(dateInput) : dateInput;
             const month = d.getMonth();
             const day = d.getDate();
             const daysInMonth = new Date(d.getFullYear(), month + 1, 0).getDate();
@@ -2404,10 +2431,9 @@
         }
 
         function openTaskModal(projectName, phaseName, phaseColor, taskDesc, startDate, endDate) {
-            document.getElementById('modalTopBar').style.background = phaseColor;
+            document.getElementById('modalTopBar').style.background = resolveColor(phaseColor);
             document.getElementById('modalProjectName').innerText = projectName;
             document.getElementById('modalPhaseTitle').innerText = phaseName;
-            const fmtD = d => { const p = d.split('-'); return `${p[0]}.${p[1]}.${p[2]}`; };
             document.getElementById('modalPhaseDates').innerText = startDate && endDate ? `${fmtD(startDate)} ~ ${fmtD(endDate)}` : '';
             const descEl = document.getElementById('modalTaskDesc');
             if (taskDesc) {
@@ -2609,7 +2635,6 @@
             document.getElementById('card-grid').innerHTML = filtered.map((p, cardIdx) => {
                 const styles = getStyleSet(p.dept);
                 const openDate = new Date(p.open);
-                const fmtD = d => { const pt = d.split('-'); return `${pt[0]}.${pt[1]}.${pt[2]}`; };
 
                 /* ── 단계 상태 판별 ── */
                 let activePhase = p.phaseDetails.find(pd => {
@@ -2751,13 +2776,12 @@
             if (currentView === 'list') renderListView(filtered, now);
 
             // 폰트 크기 자동 조절 (레이아웃 완료 후 실행)
-            setTimeout(autoFitBarFonts, 80);
+            requestAnimationFrame(autoFitBarFonts);
         }
 
         /* ── 목록뷰 렌더 ── */
         function renderListView(filtered, now) {
             const q = currentSearch.toLowerCase();
-            const fmtD = d => { const p = d.split('-'); return `${p[0]}.${p[1]}.${p[2]}`; };
             if (!filtered.length) {
                 document.getElementById('list-view').innerHTML = '<div class="list-no-data">조회된 프로젝트가 없습니다. 검색어 또는 필터 조건을 확인해 주세요.</div>';
                 return;
@@ -2772,48 +2796,17 @@
 
             const rows = sorted.map((p, idx) => {
                 // D-Day
-                const openD = new Date(p.open);
-                const diff = Math.round((openD - now) / 86400000);
-                let ddayTxt, ddayCls;
-                if (diff > 0)      { ddayTxt=`D-${diff}`; ddayCls=diff<=7?'dday-urgent':diff<=30?'dday-warn':'dday-normal'; }
-                else if (diff===0) { ddayTxt='D-Day'; ddayCls='dday-today'; }
-                else               { ddayTxt=`D+${Math.abs(diff)}`; ddayCls='dday-past'; }
+                const { text: ddayTxt, cls: ddayCls } = calcDDay(p.open, now);
+                const diff = Math.round((new Date(p.open) - now) / 86400000);
 
                 // 오픈일 클래스
                 const openCls = diff < 0 ? 'open-past' : diff <= 30 ? 'open-soon' : 'open-future';
 
                 // 총 개발기간
-                let durStr = '-', periodStart = '-', periodEnd = '-';
-                if (p.phaseDetails?.length) {
-                    const ss = p.phaseDetails.map(d=>new Date(d.start)).filter(d=>!isNaN(d));
-                    const ee = p.phaseDetails.map(d=>new Date(d.end)).filter(d=>!isNaN(d));
-                    if (ss.length && ee.length) {
-                        const e0=new Date(Math.min(...ss));
-                        const phaseEnd=new Date(Math.max(...ee));
-                        const openDate=new Date(p.open);
-                        const e1 = openDate > phaseEnd ? openDate : phaseEnd;
-                        periodStart = fmtD(e0.toISOString().slice(0,10));
-                        periodEnd   = fmtD(e1.toISOString().slice(0,10));
-                        const mo=(e1.getFullYear()-e0.getFullYear())*12+(e1.getMonth()-e0.getMonth())+1;
-                        durStr = `${mo}개월`;
-                    }
-                }
+                const { periodStart, periodEnd, durStr } = calcDuration(p);
 
                 // 현재 단계
-                let curPhase = '-';
-                const ap = p.phaseDetails?.find(pd => { const s=parseDate(pd.start),e=parseDate(pd.end); e.setHours(23,59,59); return now>=s&&now<=e; });
-                if (ap) {
-                    curPhase = (ap.name.split(':')[1]||ap.name).trim();
-                } else if (p.phaseDetails?.length) {
-                    const fst = parseDate(p.phaseDetails[0]?.start);
-                    const openDt = new Date(p.open); openDt.setHours(23,59,59);
-                    if (now < fst) curPhase = '착수 준비중';
-                    else if (now > openDt) curPhase = '개발 완료';
-                    else {
-                        const next = p.phaseDetails.find(pd => parseDate(pd.start) > now);
-                        curPhase = next ? (next.name.split(':')[1]||next.name).trim() + ' 준비중' : '오픈 준비중';
-                    }
-                }
+                const curPhase = calcCurPhase(p, now);
 
                 // 컬럼 가시성에 따라 td 생성
                 const v = listColVisible;
@@ -2913,40 +2906,9 @@
             const hdr  = ['No','사업명','부서','팀','PM','수요부서','개발시작','개발종료','총개발기간','D-Day','오픈일','현재단계','M/M','예산(억)'];
 
             const dataRows = projects.slice().sort((a,b)=>new Date(a.open)-new Date(b.open)).map((p,i)=>{
-                const openD=new Date(p.open), diff=Math.round((openD-now)/86400000);
-                const ddayTxt = diff>0?`D-${diff}`:diff===0?'D-Day':`D+${Math.abs(diff)}`;
-                let durStr='-', fs='-', le='-', curPhase='-', pct=0;
-                if (p.phaseDetails?.length) {
-                    const ss=p.phaseDetails.map(d=>new Date(d.start)).filter(d=>!isNaN(d));
-                    const ee=p.phaseDetails.map(d=>new Date(d.end)).filter(d=>!isNaN(d));
-                    if (ss.length&&ee.length) {
-                        const e0=new Date(Math.min(...ss));
-                        const phaseEnd=new Date(Math.max(...ee));
-                        const openDate=new Date(p.open);
-                        const e1=openDate>phaseEnd?openDate:phaseEnd;
-                        fs=e0.toISOString().slice(0,10); le=e1.toISOString().slice(0,10);
-                        const mo=(e1.getFullYear()-e0.getFullYear())*12+(e1.getMonth()-e0.getMonth())+1;
-                        durStr=`${mo}개월`;
-                    }
-                    const ap=p.phaseDetails.find(pd=>{const s=parseDate(pd.start),e=parseDate(pd.end);e.setHours(23,59,59);return now>=s&&now<=e;});
-                    if (ap) {
-                        curPhase=(ap.name.split(':')[1]||ap.name).trim();
-                        const ps=new Date(ap.start),pe=new Date(ap.end);
-                        pct=Math.min(100,Math.max(0,Math.round((now-ps)/(pe-ps)*100)));
-                    } else {
-                        const firstStart=parseDate(p.phaseDetails[0]?.start);
-                        const lastEnd=new Date(p.phaseDetails[p.phaseDetails.length-1]?.end);
-                        lastEnd.setHours(23,59,59);
-                        const openDate=new Date(p.open); openDate.setHours(23,59,59);
-                        if (now < firstStart) curPhase='착수 준비중';
-                        else if (now > openDate) curPhase='개발 완료';
-                        else if (now > lastEnd) curPhase='오픈 준비중';
-                        else {
-                            const next=p.phaseDetails.find(pd=>parseDate(pd.start)>now);
-                            curPhase=next?(next.name.split(':')[1]||next.name).trim()+' 준비중':'오픈 준비중';
-                        }
-                    }
-                }
+                const { text: ddayTxt } = calcDDay(p.open, now);
+                const { periodStart: fs, periodEnd: le, durStr } = calcDuration(p);
+                const curPhase = calcCurPhase(p, now);
                 return `<Row>${[i+1,p.name,p.dept,p.team,p.pm,p.clientDept||'',fs,le,durStr,ddayTxt,p.open,curPhase,p.mm,p.budget].map(cell).join('')}</Row>`;
             }).join('');
 
@@ -3132,7 +3094,7 @@
             a.href = URL.createObjectURL(blob);
             a.download = 'si_project_bulk_template.csv';
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            alert('템플릿 파일 내보내기 완료했습니다. 다운로드 폴더에서 확인하세요.');
+            alert('템플릿 파일 내보내기 완료했습니다.\n다운로드 폴더에서 확인하세요.');
         }
 
         function importBulkCSV(event) {
@@ -3252,7 +3214,7 @@
             }, 3000);
         }
 
-        function setFilter(dept) { currentFilter = dept; document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === dept)); renderDashboard(); }
+        function setFilter(dept) { currentFilter = dept; document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.dept === dept)); renderDashboard(); }
 
         // ── 마지막 저장 시각 표시 ──────────────────────────
         function updateSavedInfo() {
@@ -3383,7 +3345,7 @@
 
             const fContainer = document.getElementById('filter-container');
             const deptBtnClass = { '전체': 'filter-btn-all', '글로벌IT개발부': 'filter-btn-global', '경영정보개발부': 'filter-btn-mgmt', '수신IT개발부': 'filter-btn-deposit', '여신IT개발부': 'filter-btn-loan' };
-            fContainer.innerHTML = depts.map(dept => `<button class="filter-btn ${deptBtnClass[dept] || ''} ${currentFilter === dept ? 'active' : ''}" onclick="setFilter('${dept}')">${dept}</button>`).join('');
+            fContainer.innerHTML = depts.map(dept => `<button class="filter-btn ${deptBtnClass[dept] || ''} ${currentFilter === dept ? 'active' : ''}" data-dept="${dept}" onclick="setFilter('${dept}')">${dept}</button>`).join('');
 
             setInterval(updateLiveClock, 1000);
             updateLiveClock();
@@ -3391,7 +3353,7 @@
             renderDashboard();
             updateSavedInfo();
 
-            // 날짜 입력 change 시 wrapper 동기화 (전역)
+            // 날짜 입력 연도 4자리 보정 (전역)
             document.addEventListener('input', function(e) {
                 if (e.target.type !== 'date') return;
                 const val = e.target.value;
@@ -3400,13 +3362,8 @@
                 if (firstDash > 4) {
                     e.target.value = val.slice(0, 4) + val.slice(firstDash);
                 }
-                // textarea auto-expand (iOS/Android resize:vertical 미지원 대응)
-                if (e.target.tagName === 'TEXTAREA') {
-                    e.target.style.height = 'auto';
-                    e.target.style.height = e.target.scrollHeight + 'px';
-                }
             });
-            // textarea auto-expand 전역 처리
+            // textarea auto-expand (iOS/Android resize:vertical 미지원 대응)
             document.addEventListener('input', function(e) {
                 if (e.target.tagName !== 'TEXTAREA') return;
                 e.target.style.height = 'auto';
@@ -3525,7 +3482,7 @@
                 window.addEventListener('afterprint', restore, { once: true });
                 window.print();
                 // afterprint 미지원 환경(iOS Chrome 등) 대비 fallback
-                setTimeout(restore, 2000);
+                setTimeout(restore, 3500);
             }, 500);
         }
 
