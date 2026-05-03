@@ -3221,7 +3221,8 @@
                 document.getElementById('gantt-rows').innerHTML = ganttHtml;
                 document.getElementById('card-grid').innerHTML = cardHtml;
                 if (currentView === 'list') renderListView(filtered, now);
-                autoFitBarFonts();
+                // 레이아웃 완료 후 두 번째 프레임에서 측정해야 offsetWidth가 정확함
+                requestAnimationFrame(autoFitBarFonts);
             });
         }
 
@@ -3372,11 +3373,26 @@
         function autoFitBarFonts() {
             document.querySelectorAll('.phase-bar').forEach(bar => {
                 const w = bar.offsetWidth;
-                if (w <= 0) return;                          // 레이아웃 미완성이면 스킵
-                if (w < 30) bar.style.fontSize = '0.5rem';  // 최소 폰트 보장
-                else if (w < 55) bar.style.fontSize = '0.6rem';
-                else if (w < 85) bar.style.fontSize = '0.72rem';
-                else bar.style.fontSize = '';                // CSS 기본값 복원
+                if (w <= 0) return;
+                if (w < 16) {
+                    bar.style.fontSize = '0';
+                    bar.style.padding = '0';
+                } else if (w < 28) {
+                    bar.style.fontSize = '0.44rem';
+                    bar.style.padding = '0 2px';
+                } else if (w < 45) {
+                    bar.style.fontSize = '0.52rem';
+                    bar.style.padding = '0 4px';
+                } else if (w < 70) {
+                    bar.style.fontSize = '0.6rem';
+                    bar.style.padding = '';
+                } else if (w < 95) {
+                    bar.style.fontSize = '0.72rem';
+                    bar.style.padding = '';
+                } else {
+                    bar.style.fontSize = '';
+                    bar.style.padding = '';
+                }
             });
         }
 
@@ -3788,6 +3804,13 @@
                 ds.bar.style.left  = L + '%';
                 ds.bar.style.width = W + '%';
                 showTip(e, posToDate(L), posToDate(L + W));
+                const bw = ds.bar.offsetWidth;
+                if (bw < 16)       { ds.bar.style.fontSize = '0';      ds.bar.style.padding = '0'; }
+                else if (bw < 28)  { ds.bar.style.fontSize = '0.44rem'; ds.bar.style.padding = '0 2px'; }
+                else if (bw < 45)  { ds.bar.style.fontSize = '0.52rem'; ds.bar.style.padding = '0 4px'; }
+                else if (bw < 70)  { ds.bar.style.fontSize = '0.6rem';  ds.bar.style.padding = ''; }
+                else if (bw < 95)  { ds.bar.style.fontSize = '0.72rem'; ds.bar.style.padding = ''; }
+                else               { ds.bar.style.fontSize = '';        ds.bar.style.padding = ''; }
             });
 
             document.addEventListener('mouseup', function(e) {
@@ -3806,6 +3829,7 @@
                         saveToStorage();
                         _ganttDragged = true;
                         renderSingleGanttRow(proj.id);
+                        requestAnimationFrame(autoFitBarFonts);
                         requestAnimationFrame(drawDepLines);
                         const cascaded = proj.phaseDetails.slice(ds.phaseIdx + 1)
                             .filter(pd => pd.start !== proj.phaseDetails[ds.phaseIdx].end);
