@@ -149,7 +149,8 @@
         .clock-sep { width: 1px; height: 14px; background: #c8bfb5; flex-shrink: 0; }
         .clock-time { font-size: 0.82rem; font-weight: 700; color: #3d352c; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 6px; letter-spacing: 0.03em; }
         .clock-live-dot { width: 6px; height: 6px; background: var(--emerald); border-radius: 50%; flex-shrink: 0;
-            animation: clock-pulse 2.5s ease-out infinite; }
+            animation: clock-pulse 2.5s ease-out infinite;
+            transform: translateZ(0); will-change: transform; }
         @keyframes clock-pulse {
             0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
             60%  { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
@@ -264,6 +265,8 @@
             max-height: calc(100vh - 320px);
             min-height: 260px;
             padding: 0 16px 10px;
+            transform: translateZ(0);
+            -webkit-overflow-scrolling: touch;
         }
         .gantt-content { min-width: 1400px; position: relative; padding-right: 80px; }
 
@@ -345,12 +348,13 @@
             filter: drop-shadow(0 0 2px rgba(239,68,68,0.45));
         }
         .today-dot {
-            position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: 18px; left: 50%; transform: translateX(-50%) translateZ(0);
             width: 9px; height: 9px;
             background: #ef4444; border-radius: 50%;
             border: 2px solid white;
             box-shadow: 0 0 0 1.5px #ef4444;
             animation: today-pulse 2.4s ease-out infinite;
+            will-change: transform;
             z-index: 51;
         }
         @keyframes today-pulse {
@@ -404,35 +408,95 @@
         .milestone {
             position: absolute; top: 50%; transform: translateY(-50%);
             background: transparent;
-            padding: 2px 5px 2px 20px;
+            padding: 2px 5px 2px 14px;
             font-size: 10px; font-weight: 800; color: #dc2626;
             line-height: 1.3; white-space: nowrap;
             z-index: 30; pointer-events: none;
             text-shadow: 1px 2px 4px rgba(220,38,38,0.4), 0 0 8px rgba(255,255,255,0.9);
         }
-        .flag-pole {
-            position: absolute; left: 0; top: 50%;
-            width: 2px; height: 22px;
-            transform: translateY(-50%);
-            transform-origin: center bottom;
-            filter: drop-shadow(2px 3px 5px rgba(220,38,38,0.5));
+        /* ── Radiant Beacon (OPEN 마커) ── */
+        @keyframes beacon-pulse {
+            0%   { transform: translate(-50%,-50%) scale(1); opacity: 0.65; }
+            70%  { transform: translate(-50%,-50%) scale(4.2); opacity: 0; }
+            100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
         }
-        /* 깃대 */
-        .flag-pole::before {
-            content: '';
-            position: absolute; left: 0; top: 0;
-            width: 2px; height: 100%;
-            background: #dc2626;
-            border-radius: 1px;
+        .open-beacon {
+            position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 14px; height: 14px;
         }
-        /* 깃발 (우측 삼각형 컷) */
-        .flag-pole::after {
-            content: '';
-            position: absolute; left: 2px; top: 0;
-            width: 13px; height: 9px;
-            background: #dc2626;
-            clip-path: polygon(0 0, 100% 0, 75% 50%, 100% 100%, 0 100%);
+        .open-beacon-dot {
+            position: absolute; left: 50%; top: 50%;
+            transform: translate(-50%,-50%);
+            width: 11px; height: 11px; border-radius: 50%;
+            background: #dc2626; z-index: 2;
+            border: 2px solid white;
+            box-shadow: 0 0 0 1.5px #dc2626;
         }
+        .open-beacon-ring {
+            position: absolute; left: 50%; top: 50%;
+            transform: translate(-50%,-50%);
+            width: 11px; height: 11px; border-radius: 50%;
+            background: rgba(220,38,38,0.45);
+            animation: beacon-pulse 2.4s ease-out infinite;
+            will-change: transform, opacity;
+        }
+        .open-beacon-ring:nth-child(2) {
+            background: rgba(220,38,38,0.25);
+            animation-delay: 0.85s;
+        }
+
+        /* ── Stepper UI ── */
+        .stepper-header {
+            display: flex; align-items: center;
+            padding: 14px 20px; margin-bottom: 16px;
+            background: #faf8f5; border-radius: var(--r-md);
+            border: 1px solid #e4ddd6;
+        }
+        .stepper-step { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .stepper-circle {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: #e4ddd6; color: #a8a09a;
+            font-size: 0.78rem; font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s; border: 2px solid transparent;
+        }
+        .stepper-step.active .stepper-circle {
+            background: var(--accent); color: white;
+            box-shadow: 0 0 0 4px rgba(253,156,38,0.18);
+            border-color: var(--primary-deep);
+        }
+        .stepper-step.done .stepper-circle { background: #10b981; color: white; border-color: #059669; }
+        .stepper-label { font-size: 0.65rem; font-weight: 700; color: #a8a09a; white-space: nowrap; transition: color 0.2s; }
+        .stepper-step.active .stepper-label { color: var(--accent); }
+        .stepper-step.done .stepper-label { color: #10b981; }
+        .stepper-line { flex: 1; height: 2px; background: #e4ddd6; margin: 0 10px; margin-bottom: 18px; transition: background 0.3s; }
+        .stepper-line.done { background: #10b981; }
+        .stepper-panel { display: none; }
+        .stepper-panel.active { display: block; animation: stepFadeIn 0.22s ease; }
+        @keyframes stepFadeIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        .stepper-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 14px; padding-top: 12px;
+            border-top: 1px dashed #e4ddd6;
+        }
+        .btn-step-next {
+            padding: 7px 20px; border-radius: var(--r-sm); font-size: 0.78rem;
+            font-weight: 800; border: none;
+            background: linear-gradient(135deg, var(--primary), var(--primary-deep));
+            color: white; cursor: pointer; font-family: inherit; transition: all 0.18s;
+            box-shadow: 0 2px 8px rgba(234,88,12,0.3);
+        }
+        .btn-step-next:hover { box-shadow: 0 4px 12px rgba(234,88,12,0.4); transform: translateY(-1px); }
+        .btn-step-back {
+            padding: 7px 16px; border-radius: var(--r-sm); font-size: 0.78rem;
+            font-weight: 700; border: 1.5px solid #c8bfb5;
+            background: #fffdfb; color: #7a6f66; cursor: pointer;
+            font-family: inherit; transition: all 0.15s;
+        }
+        .btn-step-back:hover { background: #f2ede7; }
 
         .input-section {
             background: white; padding: 24px 26px; border-radius: 20px;
@@ -804,6 +868,7 @@
             position: relative; overflow: hidden;
             animation: modalContentIn 0.22s cubic-bezier(0.34,1.4,0.64,1) both;
             box-shadow: 0 24px 48px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+            will-change: transform, opacity;
         }
         .modal-top-bar { height: 6px; width: 100%; }
         .modal-body { padding: 22px 24px 26px; }
@@ -844,6 +909,7 @@
             background: #1e293b; color: white; font-weight: bold; z-index: 2000; display: none;
             box-shadow: 0 10px 15px rgba(0,0,0,0.2);
             white-space: pre-wrap; max-width: 320px; font-size: 0.84rem; line-height: 1.5;
+            will-change: transform, opacity;
         }
 
         /* ── Gantt 호버 툴팁 ── */
@@ -1570,9 +1636,9 @@
             color: #c4991a;
             text-shadow: 0 0 8px rgba(251,191,36,0.55), 0 1px 3px rgba(0,0,0,0.8);
         }
-        [data-theme="dark"] .flag-pole { filter: drop-shadow(0 0 4px rgba(251,191,36,0.65)); }
-        [data-theme="dark"] .flag-pole::before { background: #c4991a; }
-        [data-theme="dark"] .flag-pole::after  { background: #c4991a; }
+        [data-theme="dark"] .open-beacon-dot { background: #fbbf24; box-shadow: 0 0 6px rgba(251,191,36,0.8); }
+        [data-theme="dark"] .open-beacon-ring { background: rgba(251,191,36,0.45); }
+        [data-theme="dark"] .open-beacon-ring:nth-child(2) { background: rgba(251,191,36,0.25); }
 
         /* 스크롤바 */
         [data-theme="dark"] ::-webkit-scrollbar-track { background: #1e293b; }
@@ -1917,57 +1983,100 @@
                     </div>
                 </div>
 
-                <!-- 기본 정보 블록 -->
-                <div class="form-block">
-                    <div class="form-block-label">기본 정보</div>
-                    <div class="form-grid">
-                        <div class="form-group req">
-                            <label>프로젝트명</label>
-                            <input type="text" id="in-name" placeholder="프로젝트명을 입력하세요" maxlength="60">
-                        </div>
-                        <div class="form-group req">
-                            <label>본부/부서</label>
-                            <select id="in-dept">
-                                <option value="">-- 부서를 선택하세요 --</option>
-                                <option value="수신IT개발부">수신IT개발부</option>
-                                <option value="여신IT개발부">여신IT개발부</option>
-                                <option value="글로벌IT개발부">글로벌IT개발부</option>
-                                <option value="경영정보개발부">경영정보개발부</option>
-                            </select>
-                        </div>
-                        <div class="form-group req">
-                            <label>담당 팀</label>
-                            <input type="text" id="in-team" placeholder="예: 여신심사팀" maxlength="30">
-                        </div>
-                        <div class="form-group req">
-                            <label>담당 PM</label>
-                            <input type="text" id="in-pm" placeholder="PM 성명을 입력하세요" maxlength="20">
-                        </div>
-                        <div class="form-group req">
-                            <label>수요부서명</label>
-                            <input type="text" id="in-client-dept" placeholder="예: 개인여신부" maxlength="40">
-                        </div>
-                        <div class="form-group req">
-                            <label>투입 공수 (M/M)</label>
-                            <input type="text" id="in-mm" placeholder="예: 1,200" inputmode="numeric" oninput="fmtComma(this,false)">
-                        </div>
-                        <div class="form-group req">
-                            <label>투입 예산 (억원)</label>
-                            <input type="text" id="in-budget" placeholder="예: 25" inputmode="decimal" oninput="fmtComma(this,true)">
-                        </div>
-                        <div class="form-group req">
-                            <label>최종 오픈 예정일</label>
-                            <div class="date-wrap ph-show">
-                                <input type="date" id="in-open" min="2000-01-01" max="2099-12-31" onchange="validateSingleDate(this)">
-                            </div>
-                        </div>
+                <!-- Stepper 헤더 -->
+                <div class="stepper-header">
+                    <div class="stepper-step active" id="stepper-step-1">
+                        <div class="stepper-circle">1</div>
+                        <div class="stepper-label">기본정보</div>
+                    </div>
+                    <div class="stepper-line" id="stepper-line-1"></div>
+                    <div class="stepper-step" id="stepper-step-2">
+                        <div class="stepper-circle">2</div>
+                        <div class="stepper-label">세부일정</div>
+                    </div>
+                    <div class="stepper-line" id="stepper-line-2"></div>
+                    <div class="stepper-step" id="stepper-step-3">
+                        <div class="stepper-circle">3</div>
+                        <div class="stepper-label">리소스</div>
                     </div>
                 </div>
 
-                <!-- 단계별 상세 블록 -->
-                <div class="form-block">
-                    <div class="form-block-label">단계별 상세 내용</div>
-                    <div id="phase-inputs-container"></div>
+                <!-- Step 1: 기본정보 -->
+                <div class="stepper-panel active" id="step-panel-1">
+                    <div class="form-block">
+                        <div class="form-block-label">기본 정보</div>
+                        <div class="form-grid">
+                            <div class="form-group req">
+                                <label>프로젝트명</label>
+                                <input type="text" id="in-name" placeholder="프로젝트명을 입력하세요" maxlength="60">
+                            </div>
+                            <div class="form-group req">
+                                <label>본부/부서</label>
+                                <select id="in-dept">
+                                    <option value="">-- 부서를 선택하세요 --</option>
+                                    <option value="수신IT개발부">수신IT개발부</option>
+                                    <option value="여신IT개발부">여신IT개발부</option>
+                                    <option value="글로벌IT개발부">글로벌IT개발부</option>
+                                    <option value="경영정보개발부">경영정보개발부</option>
+                                </select>
+                            </div>
+                            <div class="form-group req">
+                                <label>담당 팀</label>
+                                <input type="text" id="in-team" placeholder="예: 여신심사팀" maxlength="30">
+                            </div>
+                            <div class="form-group req">
+                                <label>담당 PM</label>
+                                <input type="text" id="in-pm" placeholder="PM 성명을 입력하세요" maxlength="20">
+                            </div>
+                            <div class="form-group req">
+                                <label>수요부서명</label>
+                                <input type="text" id="in-client-dept" placeholder="예: 개인여신부" maxlength="40">
+                            </div>
+                            <div class="form-group req">
+                                <label>최종 오픈 예정일</label>
+                                <div class="date-wrap ph-show">
+                                    <input type="date" id="in-open" min="2000-01-01" max="2099-12-31" onchange="validateSingleDate(this)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stepper-nav">
+                        <div></div>
+                        <button class="btn-step-next" onclick="if(validateStep(1)) goStep(2)">세부일정 입력 →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: 세부일정 -->
+                <div class="stepper-panel" id="step-panel-2">
+                    <div class="form-block">
+                        <div class="form-block-label">단계별 상세 내용</div>
+                        <div id="phase-inputs-container"></div>
+                    </div>
+                    <div class="stepper-nav">
+                        <button class="btn-step-back" onclick="goStep(1)">← 기본정보</button>
+                        <button class="btn-step-next" onclick="goStep(3)">리소스 입력 →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: 리소스 -->
+                <div class="stepper-panel" id="step-panel-3">
+                    <div class="form-block">
+                        <div class="form-block-label">리소스</div>
+                        <div class="form-grid">
+                            <div class="form-group req">
+                                <label>투입 공수 (M/M)</label>
+                                <input type="text" id="in-mm" placeholder="예: 1,200" inputmode="numeric" oninput="fmtComma(this,false)">
+                            </div>
+                            <div class="form-group req">
+                                <label>투입 예산 (억원)</label>
+                                <input type="text" id="in-budget" placeholder="예: 25" inputmode="decimal" oninput="fmtComma(this,true)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stepper-nav">
+                        <button class="btn-step-back" onclick="goStep(2)">← 세부일정</button>
+                        <button class="btn-step-next" onclick="saveNewProject()">✓ 등록 및 로드맵 반영</button>
+                    </div>
                 </div>
 
             </div>
@@ -2434,6 +2543,33 @@
             }
         }
 
+        let _currentStep = 1;
+        function goStep(n) {
+            const total = 3;
+            _currentStep = Math.max(1, Math.min(total, n));
+            document.querySelectorAll('.stepper-panel').forEach((panel, i) => {
+                panel.classList.toggle('active', i + 1 === _currentStep);
+            });
+            document.querySelectorAll('.stepper-step').forEach((step, i) => {
+                const num = i + 1;
+                step.classList.toggle('active', num === _currentStep);
+                step.classList.toggle('done', num < _currentStep);
+            });
+            document.querySelectorAll('.stepper-line').forEach((line, i) => {
+                line.classList.toggle('done', i + 1 < _currentStep);
+            });
+        }
+
+        function validateStep(n) {
+            if (n === 1) {
+                const name = document.getElementById('in-name').value.trim();
+                const dept = document.getElementById('in-dept').value.trim();
+                if (!name) { showMsg('프로젝트명을 입력해 주세요.', 'warn'); document.getElementById('in-name').focus(); return false; }
+                if (!dept) { showMsg('부서를 입력해 주세요.', 'warn'); document.getElementById('in-dept').focus(); return false; }
+            }
+            return true;
+        }
+
         function handleResetOrCancel() {
             if (editingProjectId) {
                 cancelEdit();
@@ -2465,6 +2601,7 @@
                 }
             }
             syncDateWraps();
+            goStep(1);
             if(!silent) showMsg('모든 항목이 초기화되었습니다.');
         }
 
@@ -2812,7 +2949,7 @@
             const todayHtml = todayPos!==null
                 ? `<div class="past-overlay" style="width:${todayPos}%;"></div><div class="today-line" style="left:${todayPos}%;"></div>` : '';
             return gridLines + todayHtml + bars +
-                `<div class="milestone" style="left:${isFutureOpen?'calc(100% + 8px)':endPos+'%'};"><span class="flag-pole"></span>${formatOpenTag(p.open)}</div>`;
+                `<div class="milestone" style="left:${isFutureOpen?'calc(100% + 8px)':endPos+'%'};"><span class="open-beacon"><span class="open-beacon-ring"></span><span class="open-beacon-ring"></span><span class="open-beacon-dot"></span></span>${formatOpenTag(p.open)}</div>`;
         }
 
         function renderSingleGanttRow(projId) {
@@ -2879,7 +3016,7 @@
                 return;
             }
 
-            document.getElementById('gantt-rows').innerHTML = filtered.map((p, rowIdx) => {
+            const ganttHtml = filtered.map((p, rowIdx) => {
                 const styles = getStyleSet(p.dept);
                 // 오픈일이 올해 이후 연도이면 차트 끝(100%)에 깃발 표시
                 const openDateObj = parseDate(p.open);
@@ -2933,12 +3070,12 @@
                         ${Array.from({length: 12}, (_, mi) => { const isCur = now.getFullYear() === CURRENT_YEAR && now.getMonth() === mi; return `<div class="grid-line${isCur ? ' current-month-bar' : ''}"></div>`; }).join('')}
                         ${todayPos !== null ? `<div class="past-overlay" style="width: ${todayPos}%;"></div><div class="today-line" style="left: ${todayPos}%;"></div>` : ''}
                         ${bars}
-                        <div class="milestone" style="left:${isFutureOpen ? 'calc(100% + 8px)' : endPos + '%'};"><span class="flag-pole"></span>${formatOpenTag(p.open)}</div>
+                        <div class="milestone" style="left:${isFutureOpen ? 'calc(100% + 8px)' : endPos + '%'};"><span class="open-beacon"><span class="open-beacon-ring"></span><span class="open-beacon-ring"></span><span class="open-beacon-dot"></span></span>${formatOpenTag(p.open)}</div>
                     </div>
                 </div>`;
             }).join('');
 
-            document.getElementById('card-grid').innerHTML = filtered.map((p, cardIdx) => {
+            const cardHtml = filtered.map((p, cardIdx) => {
                 const styles = getStyleSet(p.dept);
                 const openDate = new Date(p.open);
 
@@ -3079,11 +3216,13 @@
                 </div>`;
             }).join('');
 
-            // 목록뷰 렌더
-            if (currentView === 'list') renderListView(filtered, now);
-
-            // 폰트 크기 자동 조절 (레이아웃 완료 후 실행)
-            requestAnimationFrame(autoFitBarFonts);
+            // DOM 쓰기를 단일 rAF 프레임에 일괄 처리 → 끊김 없는 트랜지션
+            requestAnimationFrame(() => {
+                document.getElementById('gantt-rows').innerHTML = ganttHtml;
+                document.getElementById('card-grid').innerHTML = cardHtml;
+                if (currentView === 'list') renderListView(filtered, now);
+                autoFitBarFonts();
+            });
         }
 
         /* ── 목록뷰 렌더 ── */
@@ -3287,8 +3426,8 @@
             if (bulkGridInited) return;
             bulkGridInited = true;
             bulkRidSeq = 0; bulkRids = [];
-            const tbody = document.getElementById('bulk-tbody');
-            tbody.innerHTML = '';
+            document.getElementById('bulk-tbody').innerHTML = '';
+            addBulkRow();
         }
 
         function addBulkRow() {
@@ -3332,14 +3471,14 @@
         }
 
         function clearBulkGrid() {
-            if (!confirm('일괄 입력 내용을 모두 초기화하시겠습니까?\n(모든 행이 삭제됩니다)')) return;
+            if (!confirm('일괄 입력 내용을 초기화하시겠습니까?\n(빈 1행만 남습니다)')) return;
             bulkRids = []; bulkRidSeq = 0;
             document.getElementById('bulk-tbody').innerHTML = '';
             const allChk = document.getElementById('bulk-chk-all');
             if (allChk) allChk.checked = false;
             const ep = document.getElementById('bulk-error-panel');
             if (ep) ep.style.display = 'none';
-            updateBulkMeta();
+            addBulkRow();
         }
 
         function saveBulk() {
